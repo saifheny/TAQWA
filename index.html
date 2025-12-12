@@ -203,6 +203,10 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
+        // Path Prefix fix for permissions
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const ROOMS_PATH = `artifacts/${appId}/rooms`;
+
         // State
         let myUser = JSON.parse(localStorage.getItem('tower_user')) || createIdentity();
         let currentRoom = null;
@@ -303,7 +307,7 @@
         window.createRoom = async () => {
             const roomId = Date.now().toString(36).substr(-6).toUpperCase();
             isHost = true;
-            await set(ref(db, `rooms/${roomId}/config`), { host: myUser.id, locked: false });
+            await set(ref(db, `${ROOMS_PATH}/${roomId}/config`), { host: myUser.id, locked: false });
             joinRoom(roomId);
         };
 
@@ -312,7 +316,7 @@
             switchView('v-room');
             document.getElementById('room-id-disp').innerText = roomId;
 
-            const configSnap = await get(ref(db, `rooms/${roomId}/config`));
+            const configSnap = await get(ref(db, `${ROOMS_PATH}/${roomId}/config`));
             const config = configSnap.val();
 
             if (config && config.host === myUser.id) {
@@ -326,11 +330,11 @@
 
             if (config && config.locked && !isHost) {
                 document.getElementById('waiting-screen').classList.remove('hidden');
-                const reqRef = ref(db, `rooms/${roomId}/requests/${myUser.id}`);
+                const reqRef = ref(db, `${ROOMS_PATH}/${roomId}/requests/${myUser.id}`);
                 set(reqRef, { ...myUser, timestamp: Date.now() });
                 onDisconnect(reqRef).remove();
 
-                const statusRef = ref(db, `rooms/${roomId}/approvals/${myUser.id}`);
+                const statusRef = ref(db, `${ROOMS_PATH}/${roomId}/approvals/${myUser.id}`);
                 onValue(statusRef, (snap) => {
                     if (snap.val() === true) {
                         document.getElementById('waiting-screen').classList.add('hidden');
@@ -344,17 +348,17 @@
         }
 
         function enterRoomLogic() {
-            const userRef = ref(db, `rooms/${currentRoom}/users/${myUser.id}`);
+            const userRef = ref(db, `${ROOMS_PATH}/${currentRoom}/users/${myUser.id}`);
             set(userRef, { ...myUser, muted: false });
             onDisconnect(userRef).remove();
 
-            onValue(ref(db, `rooms/${currentRoom}/users`), (snap) => {
+            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/users`), (snap) => {
                 const users = snap.val() || {};
                 renderUsers(users);
                 handlePeerConnections(users);
             });
 
-            onValue(ref(db, `rooms/${currentRoom}/config/locked`), (snap) => {
+            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/config/locked`), (snap) => {
                 const isLocked = snap.val();
                 const lockBtn = document.getElementById('lock-btn');
                 lockBtn.innerHTML = isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-lock-open"></i>';
@@ -520,17 +524,17 @@
 
         // --- Signaling ---
         function sendSignal(target, data) {
-            push(ref(db, `rooms/${currentRoom}/signals/${target}/${myUser.id}`), data);
+            push(ref(db, `${ROOMS_PATH}/${currentRoom}/signals/${target}/${myUser.id}`), data);
         }
 
         function listenForSignals() {
-            onValue(ref(db, `rooms/${currentRoom}/signals/${myUser.id}`), (snap) => {
+            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/signals/${myUser.id}`), (snap) => {
                 const senders = snap.val() || {};
                 Object.keys(senders).forEach(senderId => {
                     Object.values(senders[senderId]).forEach(signal => {
                         handleSignal(senderId, signal);
                     });
-                    remove(ref(db, `rooms/${currentRoom}/signals/${myUser.id}/${senderId}`));
+                    remove(ref(db, `${ROOMS_PATH}/${currentRoom}/signals/${myUser.id}/${senderId}`));
                 });
             });
         }
@@ -558,13 +562,13 @@
         // Admin & Controls
         window.toggleLock = () => {
             if (!isHost) return;
-            get(ref(db, `rooms/${currentRoom}/config/locked`)).then(snap => {
-                set(ref(db, `rooms/${currentRoom}/config/locked`), !snap.val());
+            get(ref(db, `${ROOMS_PATH}/${currentRoom}/config/locked`)).then(snap => {
+                set(ref(db, `${ROOMS_PATH}/${currentRoom}/config/locked`), !snap.val());
             });
         };
 
         function listenForRequests() {
-            onValue(ref(db, `rooms/${currentRoom}/requests`), (snap) => {
+            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/requests`), (snap) => {
                 const reqs = snap.val() || {};
                 const c = document.getElementById('requests-container');
                 c.innerHTML = '';
@@ -588,8 +592,8 @@
         }
 
         window.decide = (uid, allow) => {
-            if (allow) set(ref(db, `rooms/${currentRoom}/approvals/${uid}`), true);
-            remove(ref(db, `rooms/${currentRoom}/requests/${uid}`));
+            if (allow) set(ref(db, `${ROOMS_PATH}/${currentRoom}/approvals/${uid}`), true);
+            remove(ref(db, `${ROOMS_PATH}/${currentRoom}/requests/${uid}`));
         };
 
         window.toggleMic = () => {
@@ -600,11 +604,11 @@
             btn.style.backgroundColor = isMuted ? 'var(--danger)' : 'var(--accent)';
             btn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash text-white"></i>' : '<i class="fas fa-microphone text-black"></i>';
             
-            if (currentRoom) update(ref(db, `rooms/${currentRoom}/users/${myUser.id}`), { muted: isMuted });
+            if (currentRoom) update(ref(db, `${ROOMS_PATH}/${currentRoom}/users/${myUser.id}`), { muted: isMuted });
         };
 
         window.leaveRoom = () => {
-            if (currentRoom) remove(ref(db, `rooms/${currentRoom}/users/${myUser.id}`));
+            if (currentRoom) remove(ref(db, `${ROOMS_PATH}/${currentRoom}/users/${myUser.id}`));
             location.href = location.href.split('?')[0];
         };
 
