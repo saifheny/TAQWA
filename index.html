@@ -2,552 +2,878 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>كابتن - التوجيه المرحلي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VoiceConnect Ultimate V5</title>
+    <!-- خط تجوال العصري -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Leaflet Routing Machine -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-    
-    <!-- Icons (Lucide) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Google Fonts (Cairo) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #f3f4f6;
-            overflow: hidden;
-            touch-action: none;
+        :root {
+            --bg-deep: #0f0c29;
+            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --primary: #8e44ad;
+            --primary-grad: linear-gradient(to right, #8e44ad, #c0392b);
+            --accent: #00f260;
+            --accent-grad: linear-gradient(to right, #00f260, #0575e6);
+            --text-main: #ffffff;
+            --text-sec: #b2bec3;
+            --danger: #ff4757;
+            --glow-primary: 0 0 15px rgba(142, 68, 173, 0.6);
+            --glow-accent: 0 0 15px rgba(0, 242, 96, 0.4);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.15);
-            border-radius: 24px 24px 0 0;
-            transition: transform 0.3s ease;
-        }
-        .glass-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            border-radius: 16px;
-        }
-        .map-btn {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-        }
-        .map-btn:active { transform: scale(0.95); }
-        
-        .leaflet-routing-container { display: none !important; }
 
-        .driver-marker-container {
-            position: relative;
-            width: 56px;
-            height: 56px;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            height: 100dvh; /* Dynamic Height for Mobile */
+            width: 100vw;
+            overflow: hidden;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            position: relative;
         }
-        .heading-ring {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+
+        /* خلفية متحركة */
+        .bg-anim {
+            position: absolute; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(142,68,173,0.15) 0%, transparent 50%),
+                        radial-gradient(circle, rgba(5,117,230,0.1) 0%, transparent 50%);
+            animation: moveBg 15s linear infinite; z-index: -1;
+        }
+        @keyframes moveBg { 0% { transform: translate(-25%, -25%) rotate(0deg); } 100% { transform: translate(0, 0) rotate(360deg); } }
+
+        /* الحاوية الرئيسية للتطبيق */
+        .app-shell {
+            width: 100%; height: 100%;
+            max-width: 480px; /* Mobile First Constraint */
+            background: rgba(18, 18, 28, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+            box-shadow: 0 0 60px rgba(0,0,0,0.5);
+        }
+
+        @media (min-width: 768px) {
+            .app-shell { height: 90dvh; border-radius: 35px; border: 1px solid var(--glass-border); }
+        }
+
+        /* إدارة الشاشات */
+        .view {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 25px;
+            display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none;
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1; overflow-y: auto; overflow-x: hidden;
+            padding-bottom: calc(80px + var(--safe-bottom)); /* مساحة للبار السفلي */
+        }
+        .view.active { opacity: 1; pointer-events: all; transform: scale(1) translateY(0); z-index: 10; }
+
+        /* Scrollbar تجميلي */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        /* العناصر النصية */
+        h1 { font-size: 2.5rem; font-weight: 900; background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; letter-spacing: -1px; }
+        h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; color: white; }
+        .subtitle { color: var(--text-sec); font-size: 0.95rem; margin-bottom: 30px; line-height: 1.5; font-weight: 400; }
+
+        /* حقول الإدخال */
+        .inp-group { position: relative; margin-bottom: 20px; width: 100%; }
+        .inp-icon { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.2rem; }
+        .inp {
+            width: 100%; background: rgba(0,0,0,0.25);
+            border: 2px solid var(--glass-border);
+            padding: 18px 55px 18px 20px; border-radius: var(--radius-md);
+            color: white; font-size: 1.1rem; transition: 0.3s;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .inp:focus { border-color: var(--primary); box-shadow: var(--glow-primary); background: rgba(142, 68, 173, 0.05); transform: translateY(-2px); }
+
+        /* الأزرار الرئيسية */
+        .btn-main {
+            width: 100%; padding: 18px; border: none; border-radius: var(--radius-lg);
+            background: var(--primary-grad);
+            color: white; font-weight: 800; font-size: 1.2rem;
+            cursor: pointer; margin-top: auto;
+            box-shadow: 0 10px 30px rgba(142, 68, 173, 0.4);
+            transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 12px;
+            position: relative; overflow: hidden;
+        }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(142, 68, 173, 0.6); }
+        .btn-main:active { transform: scale(0.97); }
+        .btn-ghost { background: transparent; color: var(--text-sec); border: none; padding: 10px; cursor: pointer; font-size: 0.9rem; }
+
+        /* اختيار الأفاتار */
+        .avatar-uploader {
+            width: 160px; height: 160px; margin: 0 auto 30px;
             border-radius: 50%;
-            border: 2px solid #10B981;
-            transition: transform 0.3s linear;
-            pointer-events: none;
+            border: 4px dashed rgba(255,255,255,0.2);
+            display: flex; justify-content: center; align-items: center;
+            position: relative; cursor: pointer; transition: 0.3s;
+            background: rgba(255,255,255,0.03); overflow: hidden;
         }
-        .heading-arrow {
-            position: absolute;
-            top: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0; 
-            height: 0; 
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-bottom: 10px solid #10B981;
-        }
-        .driver-img {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-            z-index: 2;
-            background: white;
-        }
-        .bottom-sheet-content {
-            max-height: 70vh;
-            overflow-y: auto;
-            padding-bottom: 20px;
-        }
+        .avatar-uploader:hover { border-color: var(--accent); background: rgba(0, 242, 96, 0.05); }
+        .avatar-uploader.has-img { border: 4px solid var(--accent); box-shadow: 0 0 25px rgba(0, 242, 96, 0.3); }
+        .avatar-uploader img { width: 100%; height: 100%; object-fit: cover; animation: fadeIn 0.5s; }
+        .avatar-uploader i { font-size: 2.5rem; color: rgba(255,255,255,0.3); }
         
-        /* Animation for Modal */
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .modal-animate { animation: fadeIn 0.2s ease-out forwards; }
+        .presets-container { display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px; width: 100%; scroll-behavior: smooth; margin-bottom: 20px; }
+        .preset {
+            min-width: 65px; height: 65px; border-radius: 18px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; cursor: pointer; transition: 0.3s;
+        }
+        .preset:hover { transform: scale(1.1); background: rgba(255,255,255,0.15); }
+        .preset.active { border-color: var(--accent); background: rgba(0,242,96,0.15); box-shadow: var(--glow-accent); transform: scale(1.15); }
+
+        /* بطاقات الداشبورد */
+        .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; backdrop-filter: blur(10px); }
+        .user-pill { display: flex; align-items: center; gap: 10px; }
+        .user-pill img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
+        
+        .action-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border: 1px solid var(--glass-border);
+            padding: 25px; border-radius: 24px; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 20px; cursor: pointer;
+            transition: all 0.4s ease; position: relative; overflow: hidden;
+        }
+        .action-card::before { content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: var(--primary); opacity: 0; transition: 0.3s; }
+        .action-card:hover { transform: translateX(5px); background: rgba(255,255,255,0.08); }
+        .action-card:hover::before { opacity: 1; }
+        .card-icon { width: 60px; height: 60px; background: rgba(142, 68, 173, 0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #d6a2e8; transition: 0.3s; }
+        .action-card:hover .card-icon { transform: rotate(10deg) scale(1.1); background: var(--primary); color: white; }
+
+        /* شبكة الغرفة */
+        .room-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-content: flex-start; padding-bottom: 120px; }
+        .participant {
+            background: rgba(0,0,0,0.3); border-radius: 25px;
+            aspect-ratio: 0.85; position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 2px solid transparent; transition: 0.3s; overflow: hidden;
+        }
+        /* Speaker Effect */
+        .participant.speaking { border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 242, 96, 0.2); animation: pulseBorder 1.5s infinite; }
+        @keyframes pulseBorder { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 96, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 96, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 96, 0); } }
+        
+        .p-img-box { position: relative; width: 70px; height: 70px; margin-bottom: 10px; }
+        .p-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2); z-index: 2; position: relative; }
+        .p-name { font-size: 0.9rem; font-weight: 700; max-width: 90%; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .p-mic-status { position: absolute; bottom: 0; right: -5px; width: 24px; height: 24px; background: var(--bg-deep); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 2px solid #333; z-index: 3; }
+
+        /* Visualizer Bar inside Participant */
+        .mini-viz { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; opacity: 0.3; z-index: 1; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; gap: 2px; padding: 0 10px 10px; }
+        .viz-bar { flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; transition: height 0.1s; height: 5%; }
+
+        /* البار السفلي */
+        .dock-bar {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px;
+            background: rgba(22, 22, 35, 0.85); backdrop-filter: blur(20px);
+            padding: 12px 20px; border-radius: 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;
+        }
+        .dock-btn {
+            width: 50px; height: 50px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.05); color: white; font-size: 1.2rem;
+            cursor: pointer; transition: 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .dock-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-5px); }
+        .dock-btn.active { background: white; color: var(--primary); box-shadow: 0 0 20px white; }
+        .dock-btn.danger { background: rgba(255, 71, 87, 0.15); color: var(--danger); }
+        .dock-btn.danger:hover { background: var(--danger); color: white; box-shadow: 0 0 20px var(--danger); }
+        .badge { position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; background: var(--danger); border-radius: 50%; font-size: 0.7rem; border: 2px solid var(--bg-deep); display: none; align-items: center; justify-content: center; }
+
+        /* Chat Drawer */
+        .chat-drawer {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 75%;
+            background: #1a1a2e; border-radius: 30px 30px 0 0;
+            transform: translateY(110%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 90; display: flex; flex-direction: column; border-top: 1px solid var(--glass-border);
+        }
+        .chat-drawer.open { transform: translateY(0); }
+        .chat-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; position: relative; }
+        .close-chat { position: absolute; right: 20px; top: 20px; background: none; border: none; color: #888; font-size: 1.2rem; cursor: pointer; }
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 15px; max-width: 80%; align-self: flex-start; font-size: 0.9rem; border: 1px solid transparent; }
+        .msg.mine { background: rgba(142, 68, 173, 0.2); border-color: rgba(142, 68, 173, 0.5); align-self: flex-end; }
+        .chat-input-area { padding: 15px; background: rgba(0,0,0,0.2); display: flex; gap: 10px; }
+        .chat-inp { flex: 1; background: rgba(255,255,255,0.1); border: none; padding: 12px 20px; border-radius: 25px; color: white; }
+        .send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; color: #000; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            z-index: 200; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: #1e1e2f; width: 85%; max-width: 340px;
+            padding: 30px; border-radius: 30px; text-align: center;
+            transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: rgba(20, 20, 30, 0.95); border: 1px solid var(--primary);
+            padding: 12px 25px; border-radius: 50px; display: flex; align-items: center; gap: 12px;
+            z-index: 300; transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: max-content; max-width: 90%;
+        }
+        .toast.show { transform: translateX(-50%) translateY(10px); }
+
+        /* شاشة التحميل */
+        .loader { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        canvas#bg-viz { position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; z-index: 0; pointer-events: none; opacity: 0.3; mask-image: linear-gradient(to top, black, transparent); }
     </style>
 </head>
 <body>
 
-<div id="root"></div>
+    <!-- خلفية حية -->
+    <div class="bg-anim"></div>
 
-<script type="text/babel" data-type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onDisconnect, update, push, onValue, remove, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <div class="app-shell" id="app">
+        
+        <!-- === شاشة البداية === -->
+        <div class="view active" id="v-welcome">
+            <div style="text-align:center; margin-top: 15vh;">
+                <div style="font-size: 3.5rem; color: var(--accent); margin-bottom: 20px;"><i class="fas fa-wave-square"></i></div>
+                <h1>Voice<span style="color:white">X</span> Pro</h1>
+                <p class="subtitle">تجربة تواصل اجتماعي غامرة<br>بأعلى جودة صوتية وتصميم مذهل</p>
+                <div class="loader" id="init-loader"></div>
+            </div>
+        </div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCsnZdFrg-KlWFc0z6OgmXgBp6lPKf14fU",
-        authDomain: "saifsa-b51f1.firebaseapp.com",
-        databaseURL: "https://saifsa-b51f1-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "saifsa-b51f1",
-        storageBucket: "saifsa-b51f1.firebasestorage.app",
-        messagingSenderId: "41089917871",
-        appId: "1:41089917871:web:fce49f6f23bd4f679b055a",
-        measurementId: "G-4K733KS3CP"
-    };
+        <!-- === شاشة التسجيل === -->
+        <div class="view" id="v-login">
+            <h1 style="font-size: 2rem;">مرحباً بك</h1>
+            <p class="subtitle">أنشئ هويتك الرقمية للانضمام للعالم</p>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+            <div class="avatar-uploader" id="av-box" onclick="triggerUpload()">
+                <img id="av-img" style="display:none">
+                <i class="fas fa-camera" id="av-icon"></i>
+            </div>
+            <input type="file" id="file-upl" hidden accept="image/*">
 
-    const Icon = ({ name, size = 24, color = "currentColor", className }) => {
-        const ref = React.useRef(null);
-        React.useEffect(() => {
-            if (ref.current) {
-                ref.current.innerHTML = '';
-                const i = document.createElement('i');
-                i.setAttribute('data-lucide', name);
-                i.setAttribute('class', className || '');
-                ref.current.appendChild(i);
-                lucide.createIcons({ root: ref.current, nameAttr: 'data-lucide', attrs: { width: size, height: size, stroke: color } });
+            <div class="presets-container" id="presets-list">
+                <!-- JS will fill this -->
+            </div>
+
+            <div class="inp-group">
+                <i class="fas fa-user inp-icon"></i>
+                <input type="text" id="username" class="inp" placeholder="اسمك المستعار">
+            </div>
+
+            <button class="btn-main" onclick="processLogin()">
+                دخول المنصة <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+
+        <!-- === الرئيسية (Dashboard) === -->
+        <div class="view" id="v-dash">
+            <div class="dash-header">
+                <div>
+                    <h2>الرئيسية</h2>
+                    <span style="color:var(--accent); font-size:0.8rem">● متصل بالخادم</span>
+                </div>
+                <div class="user-pill">
+                    <div style="text-align:left">
+                        <div id="d-name" style="font-weight:bold; font-size:0.9rem">Guest</div>
+                        <div style="font-size:0.7rem; color:#aaa">Basic User</div>
+                    </div>
+                    <img id="d-img" src="">
+                </div>
+            </div>
+
+            <div class="action-card" onclick="startNewRoom()">
+                <div class="card-icon"><i class="fas fa-microphone-alt"></i></div>
+                <div>
+                    <h3 style="color:white; margin-bottom:5px">غرفة صوتية جديدة</h3>
+                    <p style="color:#888; font-size:0.85rem">أنشئ مساحة وادعُ أصدقاءك للحديث بجودة عالية</p>
+                </div>
+            </div>
+
+            <div class="action-card" onclick="showSettings()">
+                <div class="card-icon"><i class="fas fa-sliders-h"></i></div>
+                <div>
+                    <h3 style="color:white; margin-bottom:5px">الإعدادات والصوت</h3>
+                    <p style="color:#888; font-size:0.85rem">ضبط المايكروفون وتجهيزات الصوت</p>
+                </div>
+            </div>
+
+            <div id="rejoin-alert" style="display:none; margin-top:20px; background: rgba(0, 242, 96, 0.1); border:1px solid var(--accent); padding:15px; border-radius:15px; text-align:center; cursor:pointer" onclick="rejoinRoom()">
+                <i class="fas fa-phone-volume" style="color:var(--accent); margin-bottom:5px; font-size:1.5rem"></i>
+                <div style="color:var(--accent); font-weight:bold">لديك مكالمة جارية، اضغط للعودة</div>
+            </div>
+        </div>
+
+        <!-- === الغرفة (Room) === -->
+        <div class="view" id="v-room" style="padding-bottom: 0;">
+            <!-- Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; z-index:5; position:relative">
+                <div style="background:rgba(0,0,0,0.4); padding:8px 15px; border-radius:20px; font-family:monospace; color:var(--accent); border:1px solid rgba(255,255,255,0.1)">
+                    <i class="far fa-clock"></i> <span id="room-timer">00:00</span>
+                </div>
+                <div style="display:flex; gap:10px">
+                    <button class="btn-ghost" onclick="copyLink()" style="background:rgba(255,255,255,0.1); border-radius:50%; width:40px; height:40px;"><i class="fas fa-link"></i></button>
+                    <button class="btn-ghost" onclick="leaveRoom(false)" style="background:rgba(255,71,87,0.2); color:var(--danger); border-radius:50%; width:40px; height:40px;"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <!-- Participants Grid -->
+            <div class="room-grid" id="grid">
+                <!-- Cards injected here -->
+            </div>
+
+            <!-- Canvas Background Viz for Room -->
+            <canvas id="bg-viz"></canvas>
+
+            <!-- Bottom Dock -->
+            <div class="dock-bar">
+                <button class="dock-btn" id="btn-mic" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
+                <button class="dock-btn" onclick="toggleChat()">
+                    <i class="fas fa-comment-dots"></i>
+                    <div class="badge" id="chat-badge">0</div>
+                </button>
+                <button class="dock-btn" onclick="shareRoom()"><i class="fas fa-user-plus"></i></button>
+                <button class="dock-btn danger" onclick="leaveRoom()"><i class="fas fa-phone-slash"></i></button>
+            </div>
+
+            <!-- Chat Drawer -->
+            <div class="chat-drawer" id="chat-drawer">
+                <div class="chat-header">
+                    المحادثة الكتابية
+                    <button class="close-chat" onclick="toggleChat()"><i class="fas fa-chevron-down"></i></button>
+                </div>
+                <div class="chat-msgs" id="chat-box"></div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-inp" id="chat-inp" placeholder="اكتب رسالة..." onkeypress="handleEnter(event)">
+                    <button class="send-btn" onclick="sendChat()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- === MODAL === -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <i id="m-icon" style="font-size:3.5rem; margin-bottom:20px; display:block;"></i>
+            <h3 id="m-title" style="margin-bottom:10px; color:white"></h3>
+            <p id="m-text" style="color:#bbb; margin-bottom:25px; font-size:0.95rem; line-height:1.6"></p>
+            <div id="m-actions" style="display:flex; gap:10px; justify-content:center; flex-direction:column"></div>
+        </div>
+    </div>
+
+    <!-- === TOAST === -->
+    <div class="toast" id="toast">
+        <div id="t-icon"></div>
+        <span id="t-msg" style="color:white; font-size:0.9rem"></span>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, remove, push, get, child, onDisconnect } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8", // مفتاح عام (للتجربة فقط)
+            authDomain: "story-97cf7.firebaseapp.com",
+            databaseURL: "https://story-97cf7-default-rtdb.firebaseio.com",
+            projectId: "story-97cf7",
+            storageBucket: "story-97cf7.firebasestorage.app",
+            messagingSenderId: "742801388214",
+            appId: "1:742801388214:web:32a305a8057b0582c5ec17"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- STATE & AUDIO ENGINE ---
+        let user = JSON.parse(localStorage.getItem('vx_user')) || {};
+        let activeRoom = localStorage.getItem('vx_room');
+        let audioCtx, analyser, localStream;
+        let peers = {};
+        let roomTimerInt;
+        let isMuted = false;
+        
+        // --- SOUND EFFECTS ---
+        const Sounds = {
+            click: () => playTone(800, 'sine', 0.1),
+            success: () => { playTone(523, 'sine', 0.1); setTimeout(()=>playTone(659, 'sine', 0.2), 100); },
+            error: () => playTone(150, 'sawtooth', 0.3),
+            join: () => playTone(1000, 'triangle', 0.3),
+            msg: () => playTone(1200, 'sine', 0.1)
+        };
+
+        function playTone(freq, type, dur) {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.value = freq;
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+            osc.start(); osc.stop(audioCtx.currentTime + dur);
+        }
+
+        // --- NAVIGATION & UI ---
+        const $ = id => document.getElementById(id);
+        const showView = (id) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            $(id).classList.add('active');
+        };
+
+        // Init Sequence
+        setTimeout(() => {
+            $('init-loader').style.display = 'none';
+            if(user.id && user.name) {
+                const params = new URLSearchParams(location.search);
+                if(params.get('room')) joinRoomSequence(params.get('room'));
+                else initDash();
+            } else {
+                generatePresets();
+                showView('v-login');
             }
-        }, [name, size, color, className]);
-        return <span ref={ref} className="flex items-center justify-center"></span>;
-    };
+        }, 1500);
 
-    // --- Edit Profile Modal ---
-    const EditProfileModal = ({ driver, onClose, onSave }) => {
-        const [formData, setFormData] = React.useState({ ...driver });
-        const [img, setImg] = React.useState(driver.photo);
-
-        const onImg = (e) => {
-            const f = e.target.files[0];
-            if (f) {
-                const r = new FileReader();
-                r.onload = () => {
-                    setImg(r.result);
-                    setFormData(prev => ({ ...prev, photo: r.result }));
+        // --- LOGIN LOGIC ---
+        function generatePresets() {
+            const emojis = ['👽','🤖','🦁','🦊','🐼','🦄','👻','🎃'];
+            const con = $('presets-list');
+            con.innerHTML = '';
+            emojis.forEach(e => {
+                const div = document.createElement('div');
+                div.className = 'preset'; div.innerText = e;
+                div.onclick = () => {
+                    document.querySelectorAll('.preset').forEach(p=>p.classList.remove('active'));
+                    div.classList.add('active');
+                    generateAvatar(e);
                 };
+                con.appendChild(div);
+            });
+        }
+
+        window.triggerUpload = () => $('file-upl').click();
+        $('file-upl').onchange = (e) => {
+            const f = e.target.files[0];
+            if(f) {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    user.img = ev.target.result;
+                    $('av-img').src = user.img; $('av-img').style.display = 'block';
+                    $('av-box').classList.add('has-img');
+                    Sounds.success();
+                }
                 r.readAsDataURL(f);
             }
         };
 
-        return (
-            <div className="fixed inset-0 z-[3000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl modal-animate relative">
-                    <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-                        <Icon name="x" size={20} className="text-gray-600"/>
-                    </button>
-                    
-                    <h2 className="text-xl font-bold mb-6 text-center text-gray-800">تعديل الملف الشخصي</h2>
-                    
-                    <div className="relative w-28 h-28 mx-auto mb-8 group">
-                        <img src={img} className="w-full h-full rounded-full object-cover border-4 border-emerald-500 shadow-md" />
-                        <label className="absolute bottom-0 right-0 bg-gray-800 text-white p-2.5 rounded-full cursor-pointer hover:bg-gray-700 shadow-lg transition transform hover:scale-110">
-                            <Icon name="camera" size={18} />
-                            <input type="file" onChange={onImg} className="hidden" accept="image/*" />
-                        </label>
-                    </div>
+        function generateAvatar(emoji) {
+            const c = document.createElement('canvas'); c.width=150; c.height=150;
+            const x = c.getContext('2d');
+            x.fillStyle = '#1e272e'; x.fillRect(0,0,150,150);
+            x.font = '80px Arial'; x.textAlign='center'; x.textBaseline='middle';
+            x.fillText(emoji, 75, 80);
+            user.img = c.toDataURL();
+            $('av-img').src = user.img; $('av-img').style.display = 'block';
+            $('av-box').classList.add('has-img');
+            Sounds.click();
+        }
 
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-600 mb-1">الاسم</label>
-                            <input 
-                                value={formData.name} 
-                                onChange={e => setFormData({...formData, name: e.target.value})}
-                                className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-600 mb-1">رقم الهاتف</label>
-                            <input 
-                                value={formData.phone} 
-                                onChange={e => setFormData({...formData, phone: e.target.value})}
-                                className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-600 mb-1">رقم اللوحة</label>
-                            <input 
-                                value={formData.plate} 
-                                onChange={e => setFormData({...formData, plate: e.target.value})}
-                                className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition"
-                            />
-                        </div>
-                    </div>
+        window.processLogin = () => {
+            const name = $('username').value.trim();
+            if(!name || !user.img) { showToast('الرجاء اختيار صورة واسم', 'exclamation-circle', 'var(--danger)'); Sounds.error(); return; }
+            
+            user.id = 'u_' + Date.now().toString(36);
+            user.name = name;
+            localStorage.setItem('vx_user', JSON.stringify(user));
+            
+            // Save to DB for presence
+            set(ref(db, `users/${user.id}`), user);
+            
+            const params = new URLSearchParams(location.search);
+            if(params.get('room')) joinRoomSequence(params.get('room'));
+            else initDash();
+            Sounds.success();
+        };
 
-                    <div className="flex gap-3 mt-8">
-                        <button onClick={onClose} className="flex-1 py-3.5 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">إلغاء</button>
-                        <button onClick={() => onSave(formData)} className="flex-1 py-3.5 bg-emerald-600 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-700 transition">حفظ التغييرات</button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    // --- Dashboard Component ---
-    const Dashboard = ({ driver, updateDriverData }) => {
-        const [isOnline, setIsOnline] = React.useState(true);
-        const [mapType, setMapType] = React.useState('satellite'); 
-        const [incomingRequest, setIncomingRequest] = React.useState(null);
-        const [activeTrip, setActiveTrip] = React.useState(null);
-        const [tripStage, setTripStage] = React.useState('pickup'); 
-        const [totalEarnings, setTotalEarnings] = React.useState(driver.totalEarnings || 0);
-        const [currentLocation, setCurrentLocation] = React.useState(null);
-        const [priceInput, setPriceInput] = React.useState(''); 
-        const [tripInfo, setTripInfo] = React.useState({ distance: 0, time: 0 });
-        const [showEditProfile, setShowEditProfile] = React.useState(false); // حالة المودال
-
-        const mapRef = React.useRef(null);
-        const layersRef = React.useRef({});
-        const driverMarkerRef = React.useRef(null);
-        const tripMarkersRef = React.useRef({});
-        const routingControlRef = React.useRef(null);
-
-        // 1. تهيئة الخريطة
-        React.useEffect(() => {
-            if (!mapRef.current) {
-                mapRef.current = L.map('map', { zoomControl: false }).setView([30.0444, 31.2357], 16);
-                
-                layersRef.current.street = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap', maxZoom: 20 });
-                layersRef.current.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles © Esri', maxZoom: 19 });
-                layersRef.current.labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { attribution: '© CartoDB', pane: 'shadowPane' });
-
-                layersRef.current.satellite.addTo(mapRef.current);
-                layersRef.current.labels.addTo(mapRef.current);
-            }
-            update(ref(db, `drivers/${driver.id}`), { status: isOnline ? 'online' : 'offline' });
-        }, [isOnline]);
-
-        // 2. تبديل نوع الخريطة
-        React.useEffect(() => {
-            if (!mapRef.current) return;
-            if (mapType === 'satellite') {
-                if(mapRef.current.hasLayer(layersRef.current.street)) mapRef.current.removeLayer(layersRef.current.street);
-                if(!mapRef.current.hasLayer(layersRef.current.satellite)) mapRef.current.addLayer(layersRef.current.satellite);
-                if(!mapRef.current.hasLayer(layersRef.current.labels)) mapRef.current.addLayer(layersRef.current.labels);
-            } else {
-                if(mapRef.current.hasLayer(layersRef.current.satellite)) mapRef.current.removeLayer(layersRef.current.satellite);
-                if(mapRef.current.hasLayer(layersRef.current.labels)) mapRef.current.removeLayer(layersRef.current.labels);
-                if(!mapRef.current.hasLayer(layersRef.current.street)) mapRef.current.addLayer(layersRef.current.street);
-            }
-        }, [mapType]);
-
-        // 3. استقبال الطلبات
-        React.useEffect(() => {
-            const requestsRef = ref(db, `requests/${driver.id}`);
-            const unsubscribe = onValue(requestsRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    if (data.status === 'waiting_for_price' || data.status === 'price_proposed') {
-                        setIncomingRequest(data);
-                        updateRoute(data.pickupLat, data.pickupLng, data.dropoffLat, data.dropoffLng);
-                    } else if (data.status === 'accepted') {
-                        setActiveTrip(data);
-                        setIncomingRequest(null);
-                        setPriceInput('');
-                        setTripStage('pickup');
-                        if (currentLocation) updateRoute(currentLocation.lat, currentLocation.lng, data.pickupLat, data.pickupLng, true);
-                    } else if (data.status === 'arrived') {
-                        setTripStage('arrived');
-                    } else if (data.status === 'in_progress') {
-                        setTripStage('dropoff');
-                        if (currentLocation) updateRoute(currentLocation.lat, currentLocation.lng, data.dropoffLat, data.dropoffLng, true);
-                    }
-                } else {
-                    if (incomingRequest || activeTrip) {
-                        setIncomingRequest(null);
-                        setActiveTrip(null);
-                        clearMap();
-                        alert("تم إلغاء أو إنهاء الطلب.");
-                    }
-                }
-            });
-            return () => unsubscribe();
-        }, [driver.id, activeTrip, currentLocation]);
-
-        // 4. GPS
-        React.useEffect(() => {
-            if (!navigator.geolocation) return;
-            const watchId = navigator.geolocation.watchPosition((pos) => {
-                const { latitude, longitude, heading } = pos.coords;
-                setCurrentLocation({ lat: latitude, lng: longitude });
-                if (!driverMarkerRef.current || !driverMarkerRef.current.dragging?.enabled() || !driverMarkerRef.current.dragging.moving()) {
-                    updateDriverMarker(latitude, longitude, heading);
-                    if (isOnline) update(ref(db, `drivers/${driver.id}`), { lat: latitude, lng: longitude, status: 'online' });
-                }
-                if (activeTrip) {
-                    if (tripStage === 'pickup') updateRoute(latitude, longitude, activeTrip.pickupLat, activeTrip.pickupLng, true);
-                    else if (tripStage === 'dropoff') updateRoute(latitude, longitude, activeTrip.dropoffLat, activeTrip.dropoffLng, true);
-                }
-            }, (err) => console.warn("GPS Error"), { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
-            return () => navigator.geolocation.clearWatch(watchId);
-        }, [isOnline, activeTrip, tripStage, driver.photo]);
-
-        // --- دوال المساعدة ---
-        const updateDriverMarker = (lat, lng, heading) => {
-            if (!mapRef.current) return;
-            const rotation = heading || 0;
-            const iconHtml = `
-                <div class="driver-marker-container">
-                    <div class="heading-ring" style="transform: rotate(${rotation}deg);">
-                        <div class="heading-arrow"></div>
-                    </div>
-                    <img src="${driver.photo}" class="driver-img">
-                </div>
-            `;
-            const icon = L.divIcon({ className: 'custom-driver-wrapper', html: iconHtml, iconSize: [56, 56], iconAnchor: [28, 28] });
-
-            if (driverMarkerRef.current) {
-                 if (!driverMarkerRef.current.dragging?.enabled() || !driverMarkerRef.current.dragging.moving()) driverMarkerRef.current.setLatLng([lat, lng]).setIcon(icon); 
-            } else {
-                driverMarkerRef.current = L.marker([lat, lng], { icon, draggable: true }).addTo(mapRef.current);
-                mapRef.current.setView([lat, lng], 18);
-                driverMarkerRef.current.on('dragend', (e) => {
-                    const newPos = e.target.getLatLng();
-                    setCurrentLocation({lat: newPos.lat, lng: newPos.lng});
-                    update(ref(db, `drivers/${driver.id}`), { lat: newPos.lat, lng: newPos.lng, status: isOnline ? 'online' : 'offline' });
+        function initDash() {
+            $('d-name').innerText = user.name;
+            $('d-img').src = user.img;
+            showView('v-dash');
+            
+            if(activeRoom) {
+                get(ref(db, `rooms/${activeRoom}`)).then(s => {
+                    if(s.exists()) $('rejoin-alert').style.display = 'block';
+                    else localStorage.removeItem('vx_room');
                 });
             }
+        }
+
+        // --- ROOM LOGIC ---
+        window.startNewRoom = () => {
+            const rid = Date.now().toString(36);
+            set(ref(db, `rooms/${rid}`), {
+                host: user.id,
+                created: Date.now(),
+                status: 'active'
+            }).then(() => joinRoomSequence(rid));
         };
 
-        const recenterMap = () => {
-            if (currentLocation && mapRef.current) mapRef.current.flyTo([currentLocation.lat, currentLocation.lng], 18);
-        };
+        window.rejoinRoom = () => joinRoomSequence(activeRoom);
 
-        const updateRoute = (startLat, startLng, endLat, endLng, isLiveNavigation = false) => {
-            if (!mapRef.current) return;
-            if (tripMarkersRef.current.start) tripMarkersRef.current.start.remove();
-            if (tripMarkersRef.current.end) tripMarkersRef.current.end.remove();
-
-            if (!isLiveNavigation) {
-                const pickupIcon = L.divIcon({ className: 'pickup-marker', html: `<div class="w-8 h-8 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg text-white font-bold text-xs">من</div>`, iconSize: [32, 32] });
-                tripMarkersRef.current.start = L.marker([startLat, startLng], { icon: pickupIcon }).addTo(mapRef.current);
+        async function joinRoomSequence(rid) {
+            Sounds.click();
+            activeRoom = rid;
+            localStorage.setItem('vx_room', rid);
+            
+            // UI Prep
+            showView('v-room');
+            $('grid').innerHTML = ''; // Clear old
+            
+            // 1. Get Audio
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                initVisualizer(localStream);
+            } catch(e) {
+                showModal('خطأ المايكروفون', 'يرجى السماح بصلاحيات المايكروفون للاستمرار', '<button class="btn-main" onclick="closeModal()">حسناً</button>', 'microphone-slash', '#e74c3c');
+                return;
             }
 
-            const endIconHtml = `<div class="w-8 h-8 bg-red-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg text-white font-bold text-xs">إلى</div>`;
-            const endIcon = L.divIcon({ className: 'dropoff-marker', html: endIconHtml, iconSize: [32, 32] });
-            tripMarkersRef.current.end = L.marker([endLat, endLng], { icon: endIcon }).addTo(mapRef.current);
+            // 2. Add Self to DB
+            const pRef = ref(db, `rooms/${rid}/participants/${user.id}`);
+            await set(pRef, { info: user, muted: false, online: true });
+            onDisconnect(pRef).remove(); // Auto remove on close
 
-            if (routingControlRef.current) mapRef.current.removeControl(routingControlRef.current);
+            // 3. Add Self Card
+            addParticipantCard(user.id, user, true);
 
-            routingControlRef.current = L.Routing.control({
-                waypoints: [L.latLng(startLat, startLng), L.latLng(endLat, endLng)],
-                lineOptions: { styles: [{ color: '#3B82F6', opacity: 0.8, weight: 6 }] },
-                createMarker: function() { return null; }, 
-                addWaypoints: false, draggableWaypoints: false, fitSelectedRoutes: !isLiveNavigation, showAlternatives: false
-            }).on('routesfound', function(e) {
-                const routes = e.routes;
-                setTripInfo({ distance: (routes[0].summary.totalDistance / 1000).toFixed(1), time: Math.round(routes[0].summary.totalTime / 60) });
-            }).addTo(mapRef.current);
-        };
-
-        const clearMap = () => {
-            if (tripMarkersRef.current.start) tripMarkersRef.current.start.remove();
-            if (tripMarkersRef.current.end) tripMarkersRef.current.end.remove();
-            if (routingControlRef.current) { mapRef.current.removeControl(routingControlRef.current); routingControlRef.current = null; }
-            if (currentLocation) recenterMap();
-        };
-
-        // --- Actions ---
-        const handleProfileSave = (newData) => {
-            updateDriverData({ ...driver, ...newData });
-            update(ref(db, `drivers/${driver.id}`), newData).then(() => {
-                setShowEditProfile(false);
-            });
-        };
-
-        const sendPriceToClient = () => {
-            const price = parseFloat(priceInput);
-            if (!incomingRequest || isNaN(price) || price <= 0) return alert("أدخل سعر صحيح");
-            update(ref(db, `requests/${driver.id}`), { status: 'price_proposed', finalPrice: price, driverName: driver.name, driverPhoto: driver.photo, driverPlate: driver.plate });
-        };
-
-        const handleReject = () => {
-            if (window.confirm("هل أنت متأكد من رفض الطلب؟")) {
-                remove(ref(db, `requests/${driver.id}`)).then(() => { setIncomingRequest(null); clearMap(); });
-            }
-        };
-
-        const handleArrivedPickup = () => { update(ref(db, `requests/${driver.id}`), { status: 'arrived' }); setTripStage('arrived'); };
-        const handleStartTrip = () => { update(ref(db, `requests/${driver.id}`), { status: 'in_progress' }); setTripStage('dropoff'); if (currentLocation && activeTrip) updateRoute(currentLocation.lat, currentLocation.lng, activeTrip.dropoffLat, activeTrip.dropoffLng, true); };
-        
-        const completeTrip = () => {
-            const price = activeTrip.finalPrice || 50;
-            setTotalEarnings(totalEarnings + price);
-            update(ref(db, `drivers/${driver.id}`), { totalEarnings: totalEarnings + price });
-            remove(ref(db, `requests/${driver.id}`)); 
-            setActiveTrip(null); setTripStage('pickup'); clearMap();
-            alert(`تم إنهاء الرحلة بنجاح.`);
-        };
-
-        return (
-            <div className="flex h-screen w-full bg-gray-100 overflow-hidden relative">
+            // 4. Listen for others
+            onValue(ref(db, `rooms/${rid}/participants`), snap => {
+                const parts = snap.val() || {};
                 
-                {/* Header */}
-                <div className="absolute top-4 left-4 right-4 z-[1000]">
-                    <div className="glass-header p-3 flex justify-between items-center" onClick={() => setShowEditProfile(true)}>
-                        <div className="flex items-center gap-3 cursor-pointer">
-                            <div className="relative">
-                                <img src={driver.photo} className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm" />
-                                <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
-                                    <Icon name="edit-2" size={10} className="text-gray-600" />
-                                </div>
-                            </div>
-                            <div>
-                                <div className="font-bold text-sm text-gray-800">{driver.name}</div>
-                                <div className="text-xs text-gray-500 font-mono">{driver.plate}</div>
-                            </div>
-                        </div>
-                        <div className="bg-emerald-50 px-3 py-2 rounded-lg text-center border border-emerald-100 shadow-sm">
-                            <div className="text-xs text-gray-400">اليوم</div>
-                            <div className="font-bold text-emerald-600 text-sm">{totalEarnings} ج.م</div>
-                        </div>
-                    </div>
+                // Remove stale
+                document.querySelectorAll('.participant').forEach(el => {
+                    const uid = el.id.replace('p-', '');
+                    if(!parts[uid]) {
+                        el.remove();
+                        if(peers[uid]) { peers[uid].close(); delete peers[uid]; }
+                    }
+                });
+
+                // Add/Update
+                Object.keys(parts).forEach(uid => {
+                    const p = parts[uid];
+                    if(uid !== user.id) {
+                        if(!$(`p-${uid}`)) {
+                            addParticipantCard(uid, p.info, false);
+                            initWebRTC(uid);
+                            Sounds.join();
+                        }
+                    }
+                    updateCardStatus(uid, p.muted);
+                });
+            });
+
+            // 5. Chat Listener
+            onValue(ref(db, `rooms/${rid}/chat`), snap => {
+                const msgs = snap.val();
+                if(msgs) {
+                    const keys = Object.keys(msgs);
+                    const lastKey = keys[keys.length-1];
+                    const m = msgs[lastKey];
+                    // Very basic check to avoid duplicate append on load, 
+                    // in real app use timestamp check. 
+                    // For immersive simplicity, we clear and render last few:
+                    renderChat(msgs);
+                }
+            });
+
+            startTimer();
+        }
+
+        function addParticipantCard(uid, info, isMe) {
+            const div = document.createElement('div');
+            div.className = 'participant';
+            div.id = `p-${uid}`;
+            div.innerHTML = `
+                <div class="p-img-box">
+                    <img src="${info.img}" class="p-img">
+                    <div class="p-mic-status" id="ms-${uid}"><i class="fas fa-microphone"></i></div>
                 </div>
-
-                {/* Map Controls */}
-                <div className="absolute top-24 left-4 z-[1000] flex flex-col gap-2">
-                    <button onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')} className="map-btn w-10 h-10 flex items-center justify-center">
-                        <Icon name={mapType === 'street' ? 'map' : 'globe'} size={20} className="text-gray-700" />
-                    </button>
-                    <button onClick={recenterMap} className="map-btn w-10 h-10 flex items-center justify-center text-blue-600">
-                        <Icon name="crosshair" size={20} />
-                    </button>
+                <div class="p-name">${isMe ? 'أنت' : info.name}</div>
+                
+                <!-- Mini Visualizer Bars -->
+                <div class="mini-viz" id="viz-${uid}">
+                    <div class="viz-bar" style="height:10%"></div>
+                    <div class="viz-bar" style="height:20%"></div>
+                    <div class="viz-bar" style="height:15%"></div>
+                    <div class="viz-bar" style="height:10%"></div>
                 </div>
+            `;
+            $('grid').appendChild(div);
+        }
 
-                <div id="map" className="flex-grow w-full h-full bg-gray-300 z-0"></div>
+        function updateCardStatus(uid, muted) {
+            const icon = $(`ms-${uid}`);
+            if(muted) {
+                icon.innerHTML = '<i class="fas fa-microphone-slash" style="color:var(--danger)"></i>';
+                icon.style.borderColor = 'var(--danger)';
+            } else {
+                icon.innerHTML = '<i class="fas fa-microphone" style="color:var(--accent)"></i>';
+                icon.style.borderColor = 'var(--accent)';
+            }
+        }
 
-                {/* Footer Panel - تم إضافة pb-10 لزيادة المساحة في الأسفل */}
-                <div className="absolute bottom-0 w-full z-[1000] p-4 pb-10">
-                    
-                    {/* 1. تفاوض */}
-                    {incomingRequest && !activeTrip && (
-                        <div className="glass-panel p-5 bottom-sheet-content animate-slide-up">
-                            <div className="flex justify-between items-start mb-2">
-                                <div className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded inline-block">طلب تسعير</div>
-                                {tripInfo.distance > 0 && <div className="text-xs bg-gray-100 px-2 py-1 rounded font-bold text-gray-600">{tripInfo.distance} كم • {tripInfo.time} د</div>}
-                            </div>
-                            <h3 className="text-lg font-bold mb-2 text-gray-800">{incomingRequest.clientName}</h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                                <span className="w-2 h-2 rounded-full bg-red-500 block"></span>
-                                <span>إلى: {incomingRequest.dropoffAddress || "وجهة محددة"}</span>
-                            </div>
-                            <div className="flex gap-2 mb-4">
-                                <input type="number" placeholder="سعر الرحلة" value={priceInput} onChange={(e) => setPriceInput(e.target.value)} className="flex-1 p-3 border rounded-xl bg-gray-50 text-xl text-center font-bold outline-none focus:ring-2 focus:ring-emerald-500" />
-                                <span className="text-3xl font-extrabold text-gray-500 self-center">ج.م</span>
-                            </div>
-                            <div className="flex gap-3">
-                                <button onClick={handleReject} className="flex-1 py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition">رفض</button>
-                                <button onClick={sendPriceToClient} className="flex-[2] py-3 bg-emerald-600 rounded-xl font-bold text-white shadow-lg">إرسال العرض</button>
-                            </div>
-                            {/* مساحة إضافية صغيرة داخل الكارد */}
-                            <div className="h-2"></div>
-                        </div>
-                    )}
+        // --- VISUALIZER ENGINE ---
+        function initVisualizer(stream) {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaStreamSource(stream);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 64;
+            source.connect(analyser);
 
-                    {/* 2. رحلة نشطة */}
-                    {activeTrip && (
-                        <div className="glass-panel p-5 bottom-sheet-content animate-slide-up border-t-4 border-emerald-500">
-                            <div className="flex justify-between items-center mb-4">
-                                <div>
-                                    <div className="text-xs text-gray-400">
-                                        {tripStage === 'pickup' ? 'ذاهب لاستلام العميل' : 
-                                         tripStage === 'arrived' ? 'في انتظار العميل' : 'ذاهب للوجهة'}
-                                    </div>
-                                    <div className="font-bold text-gray-800">{activeTrip.clientName}</div>
-                                </div>
-                                <div className="font-extrabold text-xl text-emerald-600">{activeTrip.finalPrice} ج.م</div>
-                                <a href={`tel:${activeTrip.clientPhone}`} className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-600"><Icon name="phone" size={24}/></a>
-                            </div>
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            const animate = () => {
+                if(!activeRoom) return;
+                analyser.getByteFrequencyData(dataArray);
+                
+                // 1. Update Self Bars
+                const vol = dataArray.reduce((a,b)=>a+b)/dataArray.length;
+                updateVizBars(user.id, dataArray, vol);
 
-                            {tripStage === 'pickup' && <button onClick={handleArrivedPickup} className="w-full py-4 bg-blue-600 rounded-xl font-bold text-white shadow-lg mb-2">وصلت لموقع العميل</button>}
-                            {tripStage === 'arrived' && <button onClick={handleStartTrip} className="w-full py-4 bg-emerald-600 rounded-xl font-bold text-white shadow-lg mb-2">بدء الرحلة (Go)</button>}
-                            {tripStage === 'dropoff' && <button onClick={completeTrip} className="w-full py-4 bg-gray-800 rounded-xl font-bold text-white shadow-lg mb-2">إنهاء الرحلة</button>}
-                            
-                            {tripInfo.distance > 0 && tripStage !== 'arrived' && <div className="text-center text-xs text-gray-500 mt-2">متبقي: {tripInfo.distance} كم ({tripInfo.time} دقيقة)</div>}
-                            {/* مساحة إضافية صغيرة داخل الكارد */}
-                            <div className="h-2"></div>
-                        </div>
-                    )}
+                // 2. Send Vol to DB (Throttled in real app, simplified here)
+                // In this simple version, we only visualize local. 
+                // WebRTC audio tracks would need their own analysers for remote users.
+                
+                requestAnimationFrame(animate);
+            };
+            animate();
+        }
 
-                    {/* 3. الافتراضي */}
-                    {!incomingRequest && !activeTrip && (
-                        <div className="p-4 pb-6">
-                            <button onClick={() => setIsOnline(!isOnline)} className={`w-full py-4 rounded-2xl font-extrabold text-lg shadow-xl transition-all flex justify-center items-center gap-2 ${isOnline ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-white'}`}>
-                                <Icon name="power" size={24} />
-                                {isOnline ? 'أنت متصل (جاهز)' : 'غير متصل'}
-                            </button>
-                        </div>
-                    )}
-                </div>
+        function updateVizBars(uid, data, vol) {
+            const card = $(`p-${uid}`);
+            if(!card) return;
+            
+            // Border Pulse
+            if(vol > 30 && !isMuted) card.classList.add('speaking');
+            else card.classList.remove('speaking');
 
-                {/* Modal */}
-                {showEditProfile && <EditProfileModal driver={driver} onClose={() => setShowEditProfile(false)} onSave={handleProfileSave} />}
-            </div>
-        );
-    };
+            // Bars Height
+            const bars = card.querySelectorAll('.viz-bar');
+            bars.forEach((bar, i) => {
+                // Map some frequency data to bar height
+                const val = data[i * 4] || 10;
+                bar.style.height = Math.max(10, (val / 255) * 100) + '%';
+            });
+        }
 
-    const Login = ({ onLogin }) => {
-        const [formData, setFormData] = React.useState({ name: '', phone: '', plate: '' });
-        const [img, setImg] = React.useState(null);
-        const onImg = (e) => { const f=e.target.files[0]; if(f){ const r=new FileReader(); r.onload=()=>setImg(r.result); r.readAsDataURL(f); }};
-        return (
-            <div className="h-screen w-full flex items-center justify-center p-4 login-bg relative">
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-                <div className="bg-white/95 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-md relative z-10">
-                    <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">بوابة الكباتن</h1>
-                    <div className="relative w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full overflow-hidden border-4 border-gray-200 group cursor-pointer">
-                        {img ? <img src={img} className="w-full h-full object-cover"/> : <div className="flex items-center justify-center h-full text-gray-400"><Icon name="camera" size={32}/></div>}
-                        <input type="file" onChange={onImg} className="absolute inset-0 opacity-0 cursor-pointer"/>
-                    </div>
-                    <input placeholder="الاسم ثلاثي" className="w-full p-3 mb-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" onChange={e=>setFormData({...formData, name:e.target.value})}/>
-                    <input placeholder="الهاتف" className="w-full p-3 mb-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" onChange={e=>setFormData({...formData, phone:e.target.value})}/>
-                    <input placeholder="رقم اللوحة" className="w-full p-3 mb-6 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" onChange={e=>setFormData({...formData, plate:e.target.value})}/>
-                    <button onClick={(e) => { e.preventDefault(); if(formData.name) onLogin({...formData, id: formData.phone.replace(/\D/g,''), photo: img || "https://placehold.co/150x150/000/FFFFFF?text=D", totalEarnings: 0}); }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-700 transition">دخول</button>
-                </div>
-            </div>
-        );
-    };
+        // Remote Audio Viz Helper
+        function attachRemoteViz(uid, stream) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const src = ctx.createMediaStreamSource(stream);
+            const anz = ctx.createAnalyser();
+            anz.fftSize = 32;
+            src.connect(anz);
+            const data = new Uint8Array(anz.frequencyBinCount);
 
-    const App = () => {
-        const [driverData, setDriverData] = React.useState(null);
-        React.useEffect(() => { const s = localStorage.getItem('driver_app_real'); if (s) setDriverData(JSON.parse(s)); }, []);
-        return driverData ? <Dashboard driver={driverData} updateDriverData={(d) => { setDriverData(d); localStorage.setItem('driver_app_real', JSON.stringify(d)); }} /> : <Login onLogin={(d) => { setDriverData(d); localStorage.setItem('driver_app_real', JSON.stringify(d)); }} />;
-    };
+            const loop = () => {
+                if(!$(`p-${uid}`)) { ctx.close(); return; }
+                anz.getByteFrequencyData(data);
+                const vol = data.reduce((a,b)=>a+b)/data.length;
+                updateVizBars(uid, data, vol);
+                requestAnimationFrame(loop);
+            };
+            loop();
+        }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-</script>
+        // --- WEBRTC (MESH NETWORK) ---
+        function initWebRTC(rid) {
+            if(peers[rid]) return;
+            const pc = new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+            peers[rid] = pc;
+            
+            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+            pc.ontrack = e => {
+                const audio = new Audio();
+                audio.srcObject = e.streams[0];
+                audio.play();
+                attachRemoteViz(rid, e.streams[0]);
+            };
+
+            pc.onicecandidate = e => {
+                if(e.candidate) push(ref(db, `rooms/${activeRoom}/signals/${rid}`), { from:user.id, type:'ice', data:JSON.stringify(e.candidate) });
+            };
+
+            // Negotiation
+            if(user.id < rid) {
+                pc.createOffer().then(o => pc.setLocalDescription(o)).then(() => {
+                    push(ref(db, `rooms/${activeRoom}/signals/${rid}`), { from:user.id, type:'offer', data:JSON.stringify(pc.localDescription) });
+                });
+            }
+
+            // Signal Listener
+            onValue(ref(db, `rooms/${activeRoom}/signals/${user.id}`), snap => {
+                const msgs = snap.val();
+                if(!msgs) return;
+                Object.entries(msgs).forEach(([key, msg]) => {
+                    if(msg.from === rid) {
+                        const data = JSON.parse(msg.data);
+                        if(msg.type === 'offer') {
+                            pc.setRemoteDescription(data).then(()=>pc.createAnswer()).then(a=>pc.setLocalDescription(a)).then(() => {
+                                push(ref(db, `rooms/${activeRoom}/signals/${rid}`), { from:user.id, type:'answer', data:JSON.stringify(pc.localDescription) });
+                                remove(child(ref(db, `rooms/${activeRoom}/signals/${user.id}`), key));
+                            });
+                        } else if(msg.type === 'answer') {
+                            pc.setRemoteDescription(data).then(() => remove(child(ref(db, `rooms/${activeRoom}/signals/${user.id}`), key)));
+                        } else if(msg.type === 'ice') {
+                            pc.addIceCandidate(data).then(() => remove(child(ref(db, `rooms/${activeRoom}/signals/${user.id}`), key)));
+                        }
+                    }
+                });
+            });
+        }
+
+        // --- FEATURES ---
+        window.toggleMic = () => {
+            isMuted = !isMuted;
+            localStream.getAudioTracks()[0].enabled = !isMuted;
+            update(ref(db, `rooms/${activeRoom}/participants/${user.id}`), { muted: isMuted });
+            
+            const btn = $('btn-mic');
+            if(isMuted) {
+                btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                btn.classList.add('danger'); btn.classList.remove('active');
+            } else {
+                btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                btn.classList.remove('danger'); btn.classList.add('active');
+            }
+            Sounds.click();
+        };
+
+        window.toggleChat = () => {
+            $('chat-drawer').classList.toggle('open');
+            $('chat-badge').style.display = 'none';
+        };
+
+        window.sendChat = () => {
+            const txt = $('chat-inp').value.trim();
+            if(!txt) return;
+            push(ref(db, `rooms/${activeRoom}/chat`), { sender: user.name, text: txt, time: Date.now() });
+            $('chat-inp').value = '';
+            Sounds.click();
+        };
+        
+        window.handleEnter = (e) => { if(e.key === 'Enter') sendChat(); };
+
+        function renderChat(msgs) {
+            const box = $('chat-box');
+            box.innerHTML = '';
+            Object.values(msgs).forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'msg ' + (m.sender === user.name ? 'mine' : '');
+                div.innerHTML = `<b>${m.sender}</b>: ${m.text}`;
+                box.appendChild(div);
+            });
+            box.scrollTop = box.scrollHeight;
+            
+            if(!$('chat-drawer').classList.contains('open')) {
+                $('chat-badge').style.display = 'flex';
+                $('chat-badge').innerText = '!';
+                Sounds.msg();
+            }
+        }
+
+        window.copyLink = () => {
+            const url = `${location.origin}${location.pathname}?room=${activeRoom}`;
+            navigator.clipboard.writeText(url);
+            showToast('تم نسخ رابط الغرفة', 'link');
+        };
+
+        window.shareRoom = () => {
+             if (navigator.share) {
+                navigator.share({
+                    title: 'انضم لغرفتي في VoiceX',
+                    text: 'تعال ندردش بصوت عالي الجودة!',
+                    url: `${location.origin}${location.pathname}?room=${activeRoom}`
+                }).catch(console.error);
+            } else {
+                copyLink();
+            }
+        };
+
+        window.leaveRoom = (confirm=true) => {
+            if(confirm) {
+                showModal('مغادرة الغرفة؟', 'هل أنت متأكد من رغبتك في الخروج؟', 
+                    `<button class="btn-main" style="padding:10px" onclick="confirmLeave()">نعم، خروج</button>
+                     <button class="btn-ghost" onclick="closeModal()">إلغاء</button>`, 
+                     'door-open', '#ff4757');
+            } else { confirmLeave(); }
+        };
+
+        window.confirmLeave = () => {
+            if(localStream) localStream.getTracks().forEach(t=>t.stop());
+            remove(ref(db, `rooms/${activeRoom}/participants/${user.id}`));
+            localStorage.removeItem('vx_room');
+            location.href = location.pathname; // Reload cleanup
+        };
+
+        window.showSettings = () => {
+            showModal('الإعدادات', 'خيارات الصوت (قريباً)', '<button class="btn-main" onclick="closeModal()">إغلاق</button>', 'cog', '#8e44ad');
+        };
+
+        // --- UTILS ---
+        function startTimer() {
+            let s=0; clearInterval(roomTimerInt);
+            roomTimerInt = setInterval(() => {
+                s++;
+                const m = Math.floor(s/60).toString().padStart(2,'0');
+                const sec = (s%60).toString().padStart(2,'0');
+                $('room-timer').innerText = `${m}:${sec}`;
+            }, 1000);
+        }
+
+        function showToast(msg, icon, color='#00f260') {
+            $('t-msg').innerText = msg;
+            $('t-icon').innerHTML = `<i class="fas fa-${icon}" style="color:${color}; font-size:1.2rem;"></i>`;
+            $('toast').classList.add('show');
+            setTimeout(() => $('toast').classList.remove('show'), 3000);
+        }
+
+        window.showModal = (title, text, html, icon, color) => {
+            $('m-title').innerText = title; $('m-text').innerText = text; $('m-actions').innerHTML = html;
+            $('m-icon').className = `fas fa-${icon}`; $('m-icon').style.color = color;
+            $('modal').classList.add('show');
+            Sounds.click();
+        };
+        window.closeModal = () => $('modal').classList.remove('show');
+    </script>
 </body>
-</html>     اريد منك اضافت  تصميم وتعديل تصميم   لجعله مثل اوبر وتطويره اكتر    وخليه متطور اكتر
+</html>
