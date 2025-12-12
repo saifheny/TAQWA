@@ -3,259 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GhostVoice - اتصال مشفر</title>
+    <title>Tower - البرج</title>
     
-    <!-- الخطوط والأيقونات -->
+    <!-- خطوط وأيقونات -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- مكتبة PeerJS لنقل الصوت الحقيقي -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         :root {
             --bg-dark: #050505;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-            --primary: #ffffff;
+            --accent: #00d2d3; /* Cyan for Tower theme */
             --danger: #ff4757;
             --success: #2ed573;
-            --text-gray: #888;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-
+        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
         body {
             background-color: var(--bg-dark);
             color: white;
             height: 100dvh;
             width: 100vw;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
 
-        .bg-mesh {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(30,30,30,0.3), transparent 70%);
-            z-index: 0;
+        /* خلفية شبكية */
+        .grid-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 100%);
         }
 
-        .app-view {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; display: flex; flex-direction: column;
-            opacity: 0; pointer-events: none; transition: 0.4s ease;
-            transform: scale(0.98);
-        }
-        .app-view.active { opacity: 1; pointer-events: all; transform: scale(1); }
-
-        /* الشاشة الرئيسية */
-        .home-container {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; text-align: center;
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
 
-        .mystery-badge {
-            width: 100px; height: 100px; border-radius: 50%;
-            margin-bottom: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; font-weight: 900;
-            box-shadow: 0 0 40px rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.1);
+        /* حاوية المستخدم */
+        .user-card {
             position: relative;
-        }
-
-        .btn-main {
-            width: 100%; max-width: 320px; padding: 18px;
-            background: white; color: black; border: none;
-            border-radius: 16px; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: 0.3s; margin-top: 20px;
-        }
-        .btn-main:active { transform: scale(0.95); }
-
-        /* مفتاح الخصوصية */
-        .toggle-wrapper {
-            display: flex; align-items: center; gap: 15px; margin-top: 15px;
-            background: var(--glass); padding: 10px 20px; border-radius: 50px;
-            border: 1px solid var(--border);
-        }
-        .switch {
-            position: relative; display: inline-block; width: 50px; height: 26px;
-        }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; inset: 0; background-color: #333;
-            transition: .4s; border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 20px; width: 20px;
-            left: 3px; bottom: 3px; background-color: white;
-            transition: .4s; border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(24px); }
-
-        /* شاشة الغرفة */
-        .room-header {
-            padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-        }
-        
-        .grid-container {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
-            padding: 20px; overflow-y: auto; padding-bottom: 120px;
-        }
-
-        .user-blob {
-            aspect-ratio: 1; border-radius: 24px;
-            background: rgba(30,30,30,0.4); border: 1px solid var(--border);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative; transition: 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .user-blob.speaking { border-color: var(--success); box-shadow: 0 0 20px rgba(46, 213, 115, 0.2); transform: scale(1.02); }
-        .blob-avatar {
-            width: 50px; height: 50px; border-radius: 50%;
+
+        /* دائرة الأفاتار */
+        .avatar-circle {
+            width: 70px; height: 70px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;
+            font-size: 1.8rem; font-weight: 900; z-index: 10;
+            background: #1a1a1a; border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        /* شريط التحكم */
-        .dock {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: rgba(20,20,20,0.95); backdrop-filter: blur(10px);
-            padding: 10px 25px; border-radius: 100px; border: 1px solid var(--border);
-            display: flex; gap: 20px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* كانفاس الصوت (البرج) */
+        .audio-tower-canvas {
+            position: absolute;
+            bottom: 50%; left: 50%;
+            transform: translate(-50%, 50%);
+            width: 120px; height: 120px;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.6;
         }
-        .dock-btn {
-            width: 55px; height: 55px; border-radius: 50%; border: none;
-            background: rgba(255,255,255,0.1); color: white; font-size: 1.3rem;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.3s;
-        }
-        .dock-btn.active { background: white; color: black; }
-        .dock-btn.danger { background: rgba(255, 71, 87, 0.2); color: var(--danger); }
-        .dock-btn.danger:active { background: var(--danger); color: white; }
 
-        /* شاشة الانتظار والموافقة */
-        .waiting-screen {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
-            text-align: center; padding: 30px;
+        .btn-action { transition: 0.2s; }
+        .btn-action:active { transform: scale(0.92); }
+
+        .view-section {
+            display: none; height: 100%; flex-direction: column;
+            animation: fadeIn 0.4s ease-out;
         }
-        .requests-list {
-            position: absolute; top: 70px; right: 20px; left: 20px;
-            display: flex; flex-direction: column; gap: 10px; z-index: 50;
-        }
-        .request-item {
-            background: rgba(50,50,50,0.9); padding: 15px; border-radius: 12px;
+        .view-section.active { display: flex; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* نافذة الطلبات */
+        .request-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px;
+            background: rgba(20,20,20,0.95);
+            border: 1px solid var(--accent);
+            padding: 12px 20px; border-radius: 12px;
+            z-index: 1000;
             display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid var(--border); animation: slideDown 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* بوابة الصوت */
-        .audio-gate {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 200; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: 0.4s; padding: 20px; text-align: center;
-        }
-        .audio-gate.show { opacity: 1; pointer-events: all; }
-
-        .gate-icon { font-size: 3rem; margin-bottom: 20px; color: var(--success); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+        @keyframes slideDown { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, 0); } }
 
     </style>
 </head>
-<body>
+<body class="text-white">
 
-    <div class="bg-mesh"></div>
+    <div class="grid-bg"></div>
 
-    <!-- 1. الشاشة الرئيسية -->
-    <div class="app-view active" id="v-home">
-        <div class="home-container">
-            <div class="mystery-badge" id="my-badge">?</div>
-            <h1 style="margin-bottom: 5px;">GhostVoice</h1>
-            <p style="color: var(--text-gray); margin-bottom: 30px;">تحدث بحرية، بلا أسماء، بلا أثر.</p>
+    <!-- 1. شاشة التنبيه (Gate) -->
+    <div id="v-gate" class="view-section active items-center justify-center p-6 text-center">
+        <div class="glass-panel p-8 max-w-sm w-full border-t-4 border-t-[var(--accent)]">
+            <i class="fas fa-broadcast-tower text-6xl mb-6 text-[var(--accent)] animate-pulse"></i>
+            <h1 class="text-3xl font-black mb-2 tracking-tighter">TOWER</h1>
+            <p class="text-gray-400 mb-8 text-sm">منصة الاتصال الصوتي المؤمنة</p>
+            <button onclick="enterSite()" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 btn-action">
+                اتصال بالخادم
+            </button>
+        </div>
+    </div>
 
-            <div class="toggle-wrapper">
-                <span style="font-size: 0.9rem;">غرفة مقفلة (بموافقة الأدمن)</span>
-                <label class="switch">
-                    <input type="checkbox" id="private-toggle">
-                    <span class="slider"></span>
-                </label>
+    <!-- 2. الرئيسية (Home) -->
+    <div id="v-home" class="view-section items-center justify-center p-6 relative">
+        <div class="text-center w-full max-w-md">
+            <div class="flex justify-center mb-8 relative">
+                <div class="absolute inset-0 bg-[var(--accent)] blur-[40px] opacity-20 rounded-full"></div>
+                <div id="my-avatar" class="avatar-circle text-[var(--accent)] border-[var(--accent)]">T</div>
             </div>
+            
+            <h2 class="text-4xl font-black mb-2 tracking-tighter">TOWER</h2>
+            <div class="h-1 w-12 bg-[var(--accent)] mx-auto mb-8 rounded-full"></div>
 
-            <button class="btn-main" onclick="createRoom()">
-                <span>إنشاء غرفة جديدة</span>
-                <i class="fas fa-fingerprint"></i>
+            <button onclick="createRoom()" class="w-full glass-panel py-5 mb-4 flex items-center justify-center gap-3 btn-action hover:bg-white/5 border border-white/10">
+                <span class="font-bold text-lg">إنشاء برج جديد</span>
+                <i class="fas fa-plus text-[var(--accent)]"></i>
             </button>
             
-            <p style="margin-top: 30px; font-size: 0.8rem; opacity: 0.5;">
-                * للانضمام لغرفة، استخدم الرابط الذي يرسله صديقك.
-            </p>
+            <p id="join-status" class="mt-4 text-xs text-gray-500 font-mono"></p>
         </div>
     </div>
 
-    <!-- 2. شاشة الانتظار (للغرف المقفلة) -->
-    <div class="app-view" id="v-waiting">
-        <div class="waiting-screen">
-            <i class="fas fa-lock" style="font-size: 3rem; margin-bottom: 20px; color: var(--text-gray);"></i>
-            <h2>الغرفة مقفلة</h2>
-            <p style="color: var(--text-gray); margin-top: 10px;">تم إرسال طلب انضمام إلى مالك الغرفة.<br>يرجى الانتظار...</p>
-            <div class="mystery-badge" style="width: 60px; height: 60px; font-size: 1.5rem; margin-top: 30px; border-color: transparent; animation: spin 2s linear infinite;">
-                <i class="fas fa-circle-notch"></i>
+    <!-- 3. الغرفة (Room) -->
+    <div id="v-room" class="view-section relative">
+        <!-- الرأس -->
+        <div class="p-4 flex justify-between items-center glass-panel m-4">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-signal text-[var(--success)] text-xs"></i>
+                <span class="text-sm font-bold tracking-widest text-[var(--accent)]">TOWER <span id="room-id-disp" class="text-white opacity-50 font-mono">ID</span></span>
             </div>
-            <button class="btn-main" onclick="location.reload()" style="background: transparent; border: 1px solid #333; color: white; margin-top: 40px; width: auto; padding: 10px 30px;">
-                إلغاء
+            <button onclick="copyLink()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 btn-action">
+                <i class="fas fa-link text-xs"></i>
+            </button>
+        </div>
+
+        <!-- حالة الانتظار -->
+        <div id="waiting-screen" class="hidden absolute inset-0 bg-black/95 z-50 flex-col items-center justify-center text-center p-6">
+            <i class="fas fa-lock text-4xl text-gray-500 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">البرج مغلق</h3>
+            <p class="text-gray-500 text-sm">في انتظار إذن المسؤول...</p>
+        </div>
+
+        <!-- شبكة المتصلين -->
+        <div id="users-grid" class="flex-1 p-4 grid grid-cols-2 gap-4 content-start overflow-y-auto pb-32">
+            <!-- Users Injected Here -->
+        </div>
+
+        <!-- التحكم -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 glass-panel px-6 py-3 rounded-2xl shadow-2xl z-40">
+            <button onclick="leaveRoom()" class="text-gray-400 hover:text-[var(--danger)] btn-action text-xl">
+                <i class="fas fa-power-off"></i>
+            </button>
+            
+            <button id="mic-btn" onclick="toggleMic()" class="w-14 h-14 rounded-full bg-[var(--accent)] text-black flex items-center justify-center text-xl btn-action shadow-lg shadow-[var(--accent)]/30">
+                <i class="fas fa-microphone"></i>
+            </button>
+
+            <button id="lock-btn" onclick="toggleLock()" class="text-gray-400 hover:text-white btn-action text-xl hidden">
+                <i class="fas fa-lock-open"></i>
             </button>
         </div>
     </div>
 
-    <!-- 3. الغرفة -->
-    <div class="app-view" id="v-room">
-        <!-- قائمة طلبات الانضمام (للأدمن فقط) -->
-        <div class="requests-list" id="requests-list"></div>
-
-        <div class="room-header">
-            <div style="font-size: 0.9rem; font-weight: bold;">
-                <span id="room-status-icon" style="color: var(--success); margin-left: 5px;">●</span> مباشر
-            </div>
-            <button onclick="copyLink()" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem;">
-                <i class="fas fa-link"></i> نسخ الرابط
-            </button>
-        </div>
-
-        <div class="grid-container" id="grid">
-            <!-- المستخدمون -->
-        </div>
-
-        <div class="dock">
-            <button class="dock-btn danger" onclick="leaveRoom()"><i class="fas fa-phone-slash"></i></button>
-            <button class="dock-btn active" id="mic-btn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
-        </div>
-        
-        <!-- عنصر مخفي لتجميع الأصوات -->
-        <div id="audio-streams" style="display:none;"></div>
-    </div>
-
-    <!-- 4. بوابة إذن الصوت -->
-    <div class="audio-gate" id="audio-gate">
-        <i class="fas fa-headset gate-icon"></i>
-        <h2>مطلوب إذن الصوت</h2>
-        <p style="color: #aaa; margin: 15px 0; max-width: 300px; line-height: 1.6;">
-            لضمان تشفير المكالمة، يحتاج المتصفح لموافقتك لاستخدام المايكروفون والسماعات.
-        </p>
-        <button class="btn-main" onclick="confirmAudioEntry()" style="max-width: 200px;">
-            موافق والدخول
-        </button>
-    </div>
+    <div id="requests-container"></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, remove, push, onDisconnect, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, remove, onDisconnect, push, child, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // إعدادات فايربيس
-        const firebaseConfig = {
+        // Config
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8",
             authDomain: "story-97cf7.firebaseapp.com",
             databaseURL: "https://story-97cf7-default-rtdb.firebaseio.com",
@@ -264,363 +196,406 @@
             messagingSenderId: "742801388214",
             appId: "1:742801388214:web:32a305a8057b0582c5ec17"
         };
+        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app);
 
-        // --- المتغيرات العامة ---
-        let user = JSON.parse(localStorage.getItem('ghost_user')) || generateIdentity();
-        localStorage.setItem('ghost_user', JSON.stringify(user));
-        
-        let activeRoom = null;
+        // State
+        let myUser = JSON.parse(localStorage.getItem('tower_user')) || createIdentity();
+        let currentRoom = null;
+        let isHost = false;
         let localStream = null;
-        let peer = null; // كائن PeerJS للاتصال الصوتي
-        let myPeerId = null;
+        let peerConnections = {}; 
         let isMuted = false;
-        let isOwner = false;
-        let audioContext, analyser; // لتحليل الصوت (Visualizer)
-        const connectedPeers = {}; // لتتبع الاتصالات
+        
+        // Audio & Visualizer Context
+        let audioCtx;
+        const analysers = {}; // uid -> AnalyserNode
+        
+        const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-        // عرض الهوية
-        document.getElementById('my-badge').innerText = user.letter;
-        document.getElementById('my-badge').style.backgroundColor = user.color;
-        document.getElementById('my-badge').style.boxShadow = `0 0 30px ${user.color}`;
-
-        // التحقق من الرابط عند الفتح
-        const params = new URLSearchParams(location.search);
-        const roomFromUrl = params.get('room');
-
-        if (roomFromUrl) {
-            activeRoom = roomFromUrl;
-            document.getElementById('v-home').classList.remove('active');
-            // إظهار بوابة الصوت مباشرة عند الدخول برابط
-            document.getElementById('audio-gate').classList.add('show');
-        }
-
-        // --- الوظائف الأساسية ---
-
-        function generateIdentity() {
-            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const char = letters.charAt(Math.floor(Math.random() * letters.length));
-            const hue = Math.floor(Math.random() * 360);
-            return {
-                id: 'u_' + Date.now() + Math.random().toString(36).substr(2, 4),
-                letter: char,
-                color: `hsl(${hue}, 70%, 55%)`
-            };
-        }
-
-        window.createRoom = async () => {
-            activeRoom = Date.now().toString(36) + Math.random().toString(36).substr(2, 3);
-            const isPrivate = document.getElementById('private-toggle').checked;
+        // --- Setup ---
+        window.onload = async () => {
+            updateMyAvatar();
             
-            // حفظ إعدادات الغرفة
-            await set(ref(db, `rooms/${activeRoom}/config`), {
-                owner: user.id,
-                private: isPrivate,
-                created: Date.now()
-            });
-
-            isOwner = true;
-            // الانتقال لبوابة الصوت لتفعيل المايك قبل الدخول
-            document.getElementById('v-home').classList.remove('active');
-            document.getElementById('audio-gate').classList.add('show');
-        };
-
-        window.confirmAudioEntry = async () => {
             try {
-                // 1. طلب المايكروفون
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
                 
-                // 2. إعداد PeerJS (نظام الاتصال الصوتي)
-                setupPeerConnection();
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('room')) window.pendingRoom = urlParams.get('room');
 
-                document.getElementById('audio-gate').classList.remove('show');
+                // Start Visualizer Loop
+                requestAnimationFrame(drawVisualizers);
 
-            } catch (err) {
-                alert("لا يمكن الدخول بدون سماح للمايكروفون. يرجى تفعيله من إعدادات المتصفح.");
-                console.error(err);
+            } catch (error) {
+                console.error("Auth Error", error);
             }
         };
 
-        function setupPeerConnection() {
-            // إنشاء هوية PeerJS خاصة بالمستخدم
-            peer = new Peer(user.id);
-
-            peer.on('open', (id) => {
-                myPeerId = id;
-                checkRoomAccessAndJoin();
-            });
-
-            // استقبال المكالمات من الآخرين
-            peer.on('call', (call) => {
-                call.answer(localStream); // الرد وإرسال صوتي لهم
-                
-                call.on('stream', (remoteStream) => {
-                    playAudioStream(remoteStream, call.peer);
-                });
-            });
-            
-            peer.on('error', (err) => console.log('Peer error:', err));
+        function createIdentity() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const char = chars.charAt(Math.floor(Math.random() * chars.length));
+            const hue = Math.floor(Math.random() * 360);
+            const identity = {
+                id: 'u_' + Date.now().toString().substr(-6),
+                char: char,
+                color: `hsl(${hue}, 80%, 60%)`
+            };
+            localStorage.setItem('tower_user', JSON.stringify(identity));
+            return identity;
         }
 
-        async function checkRoomAccessAndJoin() {
-            // قراءة إعدادات الغرفة
-            const configSnap = await get(ref(db, `rooms/${activeRoom}/config`));
-            const config = configSnap.val();
+        function updateMyAvatar() {
+            const av = document.getElementById('my-avatar');
+            av.innerText = myUser.char;
+            av.style.borderColor = myUser.color;
+            av.style.color = myUser.color;
+            av.style.boxShadow = `0 0 20px ${myUser.color}40`;
+        }
 
-            if (!config) {
-                alert("الغرفة غير موجودة أو انتهت.");
-                location.href = "/";
+        // --- Core ---
+        window.enterSite = async () => {
+            try {
+                // Init Audio Context on user gesture
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Hook up local visualizer (don't connect to destination to avoid echo)
+                setupLocalAudio(localStream);
+
+            } catch (err) {
+                alert("الميكروفون مطلوب للاتصال");
                 return;
             }
 
-            // إذا كنت المالك أو الغرفة عامة -> ادخل فوراً
-            if (config.owner === user.id || !config.private) {
-                enterRoomLogic();
+            if (window.pendingRoom) joinRoom(window.pendingRoom);
+            else switchView('v-home');
+        };
+
+        function setupLocalAudio(stream) {
+            const src = audioCtx.createMediaStreamSource(stream);
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 64;
+            analyser.smoothingTimeConstant = 0.5;
+            src.connect(analyser);
+            analysers[myUser.id] = analyser;
+        }
+
+        window.createRoom = async () => {
+            const roomId = Date.now().toString(36).substr(-6).toUpperCase();
+            isHost = true;
+            await set(ref(db, `rooms/${roomId}/config`), { host: myUser.id, locked: false });
+            joinRoom(roomId);
+        };
+
+        async function joinRoom(roomId) {
+            currentRoom = roomId;
+            switchView('v-room');
+            document.getElementById('room-id-disp').innerText = roomId;
+
+            const configSnap = await get(ref(db, `rooms/${roomId}/config`));
+            const config = configSnap.val();
+
+            if (config && config.host === myUser.id) {
+                isHost = true;
+                document.getElementById('lock-btn').classList.remove('hidden');
+                listenForRequests();
             } else {
-                // الغرفة خاصة وأنا لست المالك -> اذهب لغرفة الانتظار
-                requestJoinAccess();
+                isHost = false;
+                document.getElementById('lock-btn').classList.add('hidden');
+            }
+
+            if (config && config.locked && !isHost) {
+                document.getElementById('waiting-screen').classList.remove('hidden');
+                const reqRef = ref(db, `rooms/${roomId}/requests/${myUser.id}`);
+                set(reqRef, { ...myUser, timestamp: Date.now() });
+                onDisconnect(reqRef).remove();
+
+                const statusRef = ref(db, `rooms/${roomId}/approvals/${myUser.id}`);
+                onValue(statusRef, (snap) => {
+                    if (snap.val() === true) {
+                        document.getElementById('waiting-screen').classList.add('hidden');
+                        enterRoomLogic();
+                        remove(reqRef);
+                    }
+                });
+            } else {
+                enterRoomLogic();
             }
         }
 
-        // --- منطق الغرفة الخاصة ---
-        function requestJoinAccess() {
-            showView('v-waiting');
-            const waitRef = ref(db, `rooms/${activeRoom}/waiting/${user.id}`);
-            set(waitRef, {
-                letter: user.letter,
-                color: user.color,
-                timestamp: Date.now()
-            });
-            onDisconnect(waitRef).remove();
-
-            // الاستماع لحالة القبول
-            onValue(ref(db, `rooms/${activeRoom}/allowed/${user.id}`), (snap) => {
-                if (snap.exists()) {
-                    // تمت الموافقة!
-                    remove(waitRef); // حذف من الانتظار
-                    enterRoomLogic();
-                }
-            });
-        }
-
-        // --- منطق الدخول للغرفة (بعد الموافقة أو إذا كانت عامة) ---
         function enterRoomLogic() {
-            showView('v-room');
-            
-            // إضافة المستخدم للقائمة النشطة
-            const userRef = ref(db, `rooms/${activeRoom}/users/${user.id}`);
-            set(userRef, {
-                letter: user.letter,
-                color: user.color,
-                muted: false,
-                peerId: myPeerId // مهم جداً للاتصال
-            });
+            const userRef = ref(db, `rooms/${currentRoom}/users/${myUser.id}`);
+            set(userRef, { ...myUser, muted: false });
             onDisconnect(userRef).remove();
 
-            // 1. مراقبة المستخدمين لعرضهم في الشبكة + الاتصال بهم
-            onValue(ref(db, `rooms/${activeRoom}/users`), (snap) => {
+            onValue(ref(db, `rooms/${currentRoom}/users`), (snap) => {
                 const users = snap.val() || {};
-                renderGrid(users);
-                connectToNewUsers(users); // الاتصال الصوتي
+                renderUsers(users);
+                handlePeerConnections(users);
             });
 
-            // 2. إذا كنت المالك، راقب قائمة الانتظار
-            checkOwnerPrivileges();
-
-            // 3. تشغيل الـ Visualizer المحلي
-            initLocalVisualizer();
-        }
-
-        // --- الاتصال الصوتي (Mesh Network) ---
-        function connectToNewUsers(usersList) {
-            Object.keys(usersList).forEach(remoteUserId => {
-                if (remoteUserId === user.id) return; // لا تتصل بنفسك
-
-                const remoteUser = usersList[remoteUserId];
-                // إذا لم نكن متصلين به بالفعل ولديه PeerID
-                if (!connectedPeers[remoteUserId] && remoteUser.peerId) {
-                    console.log("Calling user:", remoteUserId);
-                    const call = peer.call(remoteUser.peerId, localStream);
-                    
-                    call.on('stream', (remoteStream) => {
-                        playAudioStream(remoteStream, remoteUserId);
-                    });
-
-                    connectedPeers[remoteUserId] = call;
-                }
-            });
-        }
-
-        function playAudioStream(stream, id) {
-            // التأكد من عدم تكرار الصوت
-            if (document.getElementById(`audio-${id}`)) return;
-
-            const audio = document.createElement('audio');
-            audio.id = `audio-${id}`;
-            audio.srcObject = stream;
-            audio.autoplay = true;
-            audio.playsInline = true; // مهم للموبايل
-            document.getElementById('audio-streams').appendChild(audio);
-
-            // تشغيل Visualizer للصوت القادم (اختياري لتحريك الفقاعة)
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioCtx.createMediaStreamSource(stream);
-            const analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 32;
-            source.connect(analyser);
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            
-            const loop = () => {
-                if (!document.getElementById(`u-${id}`)) return;
-                analyser.getByteFrequencyData(data);
-                const vol = data.reduce((a,b)=>a+b) / data.length;
-                updateBlobVisual(id, vol);
-                requestAnimationFrame(loop);
-            };
-            loop();
-        }
-
-        // --- واجهة المستخدم ---
-        function renderGrid(users) {
-            const grid = document.getElementById('grid');
-            // نحتفظ بالعناصر الموجودة لعدم إعادة الرسم المزعج
-            const existingIds = Array.from(grid.children).map(c => c.id.replace('u-', ''));
-            
-            // حذف من خرجوا
-            existingIds.forEach(eid => {
-                if (!users[eid]) document.getElementById(`u-${eid}`).remove();
+            onValue(ref(db, `rooms/${currentRoom}/config/locked`), (snap) => {
+                const isLocked = snap.val();
+                const lockBtn = document.getElementById('lock-btn');
+                lockBtn.innerHTML = isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-lock-open"></i>';
+                lockBtn.style.color = isLocked ? '#ff4757' : '#fff';
             });
 
-            // إضافة أو تحديث الموجودين
+            listenForSignals();
+        }
+
+        // --- WebRTC & Audio Routing ---
+        function handlePeerConnections(users) {
             Object.keys(users).forEach(uid => {
-                const u = users[uid];
-                let el = document.getElementById(`u-${uid}`);
-                
-                if (!el) {
-                    el = document.createElement('div');
-                    el.className = 'user-blob';
-                    el.id = `u-${uid}`;
-                    grid.appendChild(el);
-                }
+                if (uid === myUser.id) return;
+                if (!peerConnections[uid]) startPeerConnection(uid);
+            });
 
-                const isMe = uid === user.id;
-                const micIcon = u.muted ? '<i class="fas fa-microphone-slash" style="color:#ff4757"></i>' : '';
-                
-                el.innerHTML = `
-                    <div class="blob-avatar" style="background: ${u.color}; box-shadow: 0 0 10px ${u.color}">
-                        ${u.letter}
-                    </div>
-                    <div style="font-size:0.8rem; opacity:0.7;">${isMe ? 'أنت' : 'مجهول'}</div>
-                    <div style="position:absolute; top:10px; right:10px; font-size:0.8rem;">${micIcon}</div>
-                `;
+            Object.keys(peerConnections).forEach(uid => {
+                if (!users[uid]) {
+                    peerConnections[uid].close();
+                    delete peerConnections[uid];
+                    delete analysers[uid]; // Cleanup visualizer
+                }
             });
         }
 
-        function updateBlobVisual(uid, vol) {
-            const blob = document.getElementById(`u-${uid}`);
-            if (blob && vol > 10) {
-                blob.classList.add('speaking');
-                blob.style.transform = `scale(${1 + vol/200})`;
-            } else if (blob) {
-                blob.classList.remove('speaking');
-                blob.style.transform = `scale(1)`;
-            }
-        }
+        function startPeerConnection(targetUid) {
+            const pc = new RTCPeerConnection(rtcConfig);
+            peerConnections[targetUid] = pc;
 
-        function initLocalVisualizer() {
-            if(!localStream) return;
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const src = audioContext.createMediaStreamSource(localStream);
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 32;
-            src.connect(analyser);
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            
-            const loop = () => {
-                analyser.getByteFrequencyData(data);
-                const vol = isMuted ? 0 : (data.reduce((a,b)=>a+b) / data.length);
-                updateBlobVisual(user.id, vol);
-                requestAnimationFrame(loop);
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            pc.ontrack = (event) => {
+                // Create audio stream for this user
+                const remoteStream = event.streams[0];
+                
+                // IMPORTANT: Connect to AudioContext for Playback AND Visualization
+                const src = audioCtx.createMediaStreamSource(remoteStream);
+                const analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 64;
+                analyser.smoothingTimeConstant = 0.5;
+                
+                // Chain: Source -> Analyser -> Destination (Speakers)
+                src.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                
+                // Store analyser for drawing
+                analysers[targetUid] = analyser;
             };
-            loop();
-        }
 
-        // --- أدوات الأدمن (الموافقة والرفض) ---
-        async function checkOwnerPrivileges() {
-            const configSnap = await get(ref(db, `rooms/${activeRoom}/config`));
-            if (configSnap.exists() && configSnap.val().owner === user.id) {
-                isOwner = true;
-                // مراقبة قائمة الانتظار
-                onValue(ref(db, `rooms/${activeRoom}/waiting`), (snap) => {
-                    renderRequests(snap.val() || {});
+            pc.onicecandidate = (event) => {
+                if (event.candidate) sendSignal(targetUid, { type: 'candidate', candidate: event.candidate.toJSON() });
+            };
+
+            if (myUser.id < targetUid) {
+                pc.createOffer().then(offer => {
+                    pc.setLocalDescription(offer);
+                    sendSignal(targetUid, { type: 'offer', sdp: offer });
                 });
             }
         }
 
-        function renderRequests(requests) {
-            const list = document.getElementById('requests-list');
-            list.innerHTML = '';
+        // --- Visualizer Loop (The Tower Effect) ---
+        function drawVisualizers() {
+            requestAnimationFrame(drawVisualizers);
             
-            Object.keys(requests).forEach(reqId => {
-                const req = requests[reqId];
-                const item = document.createElement('div');
-                item.className = 'request-item';
-                item.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="blob-avatar" style="width:30px; height:30px; font-size:1rem; background:${req.color}">${req.letter}</div>
-                        <span>يريد الانضمام</span>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="approveUser('${reqId}')" style="background:#2ed573; border:none; width:30px; height:30px; border-radius:50%; color:white;"><i class="fas fa-check"></i></button>
-                        <button onclick="rejectUser('${reqId}')" style="background:#ff4757; border:none; width:30px; height:30px; border-radius:50%; color:white;"><i class="fas fa-times"></i></button>
-                    </div>
-                `;
-                list.appendChild(item);
+            Object.keys(analysers).forEach(uid => {
+                const canvas = document.getElementById(`vis-${uid}`);
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                const analyser = analysers[uid];
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                analyser.getByteFrequencyData(dataArray);
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const radius = 38; // Slightly larger than avatar
+                
+                // Draw circular bars (Tower view)
+                const bars = 20;
+                const step = (Math.PI * 2) / bars;
+                
+                for (let i = 0; i < bars; i++) {
+                    // Map frequency data to bars
+                    const val = dataArray[i] || 0;
+                    const barHeight = (val / 255) * 30; // Max height
+                    
+                    const angle = i * step;
+                    
+                    // Start point (on circle)
+                    const x1 = centerX + Math.cos(angle) * radius;
+                    const y1 = centerY + Math.sin(angle) * radius;
+                    
+                    // End point (outwards)
+                    const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+                    const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = val > 10 ? `hsl(180, 100%, 50%)` : 'rgba(255,255,255,0.1)';
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                }
             });
         }
 
-        window.approveUser = (reqId) => {
-            // نقل من الانتظار إلى السماح
-            set(ref(db, `rooms/${activeRoom}/allowed/${reqId}`), true);
-            remove(ref(db, `rooms/${activeRoom}/waiting/${reqId}`));
+        // --- UI ---
+        function renderUsers(users) {
+            const grid = document.getElementById('users-grid');
+            
+            // Only add/remove if diff to avoid canvas redraw flicker
+            // Simple approach: re-render, but canvas is tricky. 
+            // Better: Check existence.
+            
+            const currentIds = Object.keys(users);
+            
+            // Remove old
+            Array.from(grid.children).forEach(child => {
+                const uid = child.id.replace('card-', '');
+                if (!users[uid]) child.remove();
+            });
+
+            // Add/Update
+            currentIds.forEach(uid => {
+                const u = users[uid];
+                let card = document.getElementById(`card-${uid}`);
+                
+                if (!card) {
+                    card = document.createElement('div');
+                    card.id = `card-${uid}`;
+                    card.className = 'glass-panel p-4 user-card aspect-square';
+                    card.innerHTML = `
+                        <canvas id="vis-${uid}" class="audio-tower-canvas" width="120" height="120"></canvas>
+                        <div class="avatar-circle mb-2" style="border-color:${u.color}; color:${u.color}; box-shadow: 0 0 15px ${u.color}30">
+                            ${u.char}
+                            <div id="mute-${uid}" class="hidden absolute bottom-0 right-0 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs border border-black"><i class="fas fa-microphone-slash"></i></div>
+                        </div>
+                        <div class="text-sm font-bold tracking-wider">${uid === myUser.id ? 'YOU' : 'GUEST'}</div>
+                    `;
+                    grid.appendChild(card);
+                }
+                
+                // Update Mute Status
+                const muteIcon = card.querySelector(`#mute-${uid}`);
+                if (u.muted) muteIcon.classList.remove('hidden');
+                else muteIcon.classList.add('hidden');
+            });
+        }
+
+        // --- Signaling & Actions --- (Standard)
+        function sendSignal(target, data) {
+            push(ref(db, `rooms/${currentRoom}/signals/${target}/${myUser.id}`), data);
+        }
+
+        function listenForSignals() {
+            onValue(ref(db, `rooms/${currentRoom}/signals/${myUser.id}`), (snap) => {
+                const senders = snap.val() || {};
+                Object.keys(senders).forEach(senderId => {
+                    Object.values(senders[senderId]).forEach(signal => {
+                        handleSignal(senderId, signal);
+                    });
+                    remove(ref(db, `rooms/${currentRoom}/signals/${myUser.id}/${senderId}`));
+                });
+            });
+        }
+
+        async function handleSignal(senderId, signal) {
+            if (!peerConnections[senderId]) startPeerConnection(senderId);
+            const pc = peerConnections[senderId];
+            
+            try {
+                if (signal.type === 'offer') {
+                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+                    sendSignal(senderId, { type: 'answer', sdp: answer });
+                } else if (signal.type === 'answer') {
+                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                } else if (signal.type === 'candidate') {
+                    await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+                }
+            } catch(e) {}
+        }
+
+        // Admin & Controls
+        window.toggleLock = () => {
+            if (!isHost) return;
+            get(ref(db, `rooms/${currentRoom}/config/locked`)).then(snap => {
+                set(ref(db, `rooms/${currentRoom}/config/locked`), !snap.val());
+            });
         };
 
-        window.rejectUser = (reqId) => {
-            remove(ref(db, `rooms/${activeRoom}/waiting/${reqId}`));
+        function listenForRequests() {
+            onValue(ref(db, `rooms/${currentRoom}/requests`), (snap) => {
+                const reqs = snap.val() || {};
+                const c = document.getElementById('requests-container');
+                c.innerHTML = '';
+                Object.keys(reqs).forEach(uid => {
+                    const r = reqs[uid];
+                    const d = document.createElement('div');
+                    d.className = 'request-toast';
+                    d.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold bg-gray-800 text-[var(--accent)] border border-[var(--accent)]">${r.char}</div>
+                            <span class="text-sm">طلب انضمام...</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="decide('${uid}', true)" class="w-8 h-8 rounded-full bg-[var(--success)] text-black flex items-center justify-center"><i class="fas fa-check"></i></button>
+                            <button onclick="decide('${uid}', false)" class="w-8 h-8 rounded-full bg-[var(--danger)] text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
+                        </div>
+                    `;
+                    c.appendChild(d);
+                });
+            });
+        }
+
+        window.decide = (uid, allow) => {
+            if (allow) set(ref(db, `rooms/${currentRoom}/approvals/${uid}`), true);
+            remove(ref(db, `rooms/${currentRoom}/requests/${uid}`));
         };
 
-        // --- أدوات التحكم ---
         window.toggleMic = () => {
             isMuted = !isMuted;
-            if(localStream) localStream.getAudioTracks()[0].enabled = !isMuted;
+            if (localStream) localStream.getAudioTracks()[0].enabled = !isMuted;
             
             const btn = document.getElementById('mic-btn');
-            btn.classList.toggle('active');
-            btn.classList.toggle('danger');
-            btn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+            btn.style.backgroundColor = isMuted ? 'var(--danger)' : 'var(--accent)';
+            btn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash text-white"></i>' : '<i class="fas fa-microphone text-black"></i>';
             
-            update(ref(db, `rooms/${activeRoom}/users/${user.id}`), { muted: isMuted });
-        };
-
-        window.copyLink = () => {
-            const url = `${location.origin}${location.pathname}?room=${activeRoom}`;
-            navigator.clipboard.writeText(url);
-            alert("تم نسخ رابط الغرفة!");
+            if (currentRoom) update(ref(db, `rooms/${currentRoom}/users/${myUser.id}`), { muted: isMuted });
         };
 
         window.leaveRoom = () => {
-            if(localStream) localStream.getTracks().forEach(t => t.stop());
-            if(activeRoom) remove(ref(db, `rooms/${activeRoom}/users/${user.id}`));
-            if(peer) peer.destroy();
-            location.href = "/";
+            if (currentRoom) remove(ref(db, `rooms/${currentRoom}/users/${myUser.id}`));
+            location.href = location.href.split('?')[0];
         };
 
-        function showView(id) {
-            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+        window.copyLink = () => {
+            navigator.clipboard.writeText(`${location.origin}${location.pathname}?room=${currentRoom}`);
+            const btn = event.currentTarget;
+            btn.innerHTML = '<i class="fas fa-check text-[var(--success)]"></i>';
+            setTimeout(() => btn.innerHTML = '<i class="fas fa-link text-xs"></i>', 1500);
+        };
+
+        function switchView(id) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
-
     </script>
 </body>
 </html>
