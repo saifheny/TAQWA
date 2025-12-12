@@ -3,193 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tower - البرج</title>
+    <title>GhostVoice - مجهول</title>
     
-    <!-- خطوط وأيقونات -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
     <style>
+        /* --- التصميم القديم الأصلي (V1) --- */
         :root {
             --bg-dark: #050505;
-            --accent: #00d2d3; /* Cyan for Tower theme */
-            --danger: #ff4757;
-            --success: #2ed573;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #ffffff;
+            --text-gray: #888;
         }
 
-        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+
         body {
             background-color: var(--bg-dark);
             color: white;
             height: 100dvh;
             width: 100vw;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* خلفية شبكية */
-        .grid-bg {
-            position: fixed; inset: 0; z-index: -1;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 100%);
+        /* الخلفية الشبكية القديمة */
+        .bg-mesh {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(100, 100, 100, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(200, 200, 200, 0.05), transparent 25%);
+            z-index: 0;
         }
 
-        .glass-panel {
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        .app-view {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none; transition: 0.5s ease;
+            transform: scale(0.95);
         }
+        .app-view.active { opacity: 1; pointer-events: all; transform: scale(1); }
 
-        /* حاوية المستخدم */
-        .user-card {
+        /* الشارة والجليتش القديم */
+        .mystery-badge {
+            width: 120px; height: 120px; border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3.5rem; font-weight: 900;
+            box-shadow: 0 0 50px rgba(255,255,255,0.1);
+            border: 4px solid rgba(255,255,255,0.1);
             position: relative;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mystery-badge::after {
+            content: ''; position: absolute; inset: -10px; border-radius: 50%;
+            border: 2px dashed rgba(255,255,255,0.2); animation: spin 20s linear infinite;
         }
 
-        /* دائرة الأفاتار */
-        .avatar-circle {
+        h1 { font-size: 2.5rem; text-align: center; margin-bottom: 10px; letter-spacing: -1px; }
+        .glitch-text { position: relative; }
+        .glitch-text::before { content: attr(data-text); position: absolute; left: 2px; text-shadow: -1px 0 red; clip: rect(24px, 550px, 90px, 0); animation: glitch 3s infinite linear alternate-reverse; }
+
+        /* الأزرار القديمة */
+        .btn-ghost {
+            width: 80%; max-width: 300px; padding: 20px; margin: 10px auto;
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 20px; color: white; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .btn-ghost:active { transform: scale(0.96); background: rgba(255,255,255,0.1); }
+
+        /* زر الاستعادة */
+        .rejoin-btn { border-color: #2ed573; background: rgba(46, 213, 115, 0.05); display: none; }
+        .rejoin-btn.visible { display: flex; animation: slideUp 0.5s; }
+
+        /* --- الشبكة (Grid) الديناميكية --- */
+        .grid-container {
+            display: grid; gap: 20px;
+            padding: 20px; overflow-y: auto; padding-bottom: 120px;
+            flex: 1; 
+            /* التوسيط الافتراضي */
+            align-content: center; justify-content: center;
+        }
+
+        /* 1: في المنتصف */
+        .grid-container.layout-1 {
+            grid-template-columns: 1fr;
+            max-width: 300px; margin: 0 auto; width: 100%;
+        }
+
+        /* 2: جنب بعض */
+        .grid-container.layout-2 {
+            grid-template-columns: 1fr 1fr;
+            max-width: 600px; margin: 0 auto; width: 100%;
+        }
+
+        /* 3: تحت بعض (حسب طلبك) */
+        .grid-container.layout-3 {
+            grid-template-columns: 1fr; /* عمود واحد */
+            max-width: 300px; margin: 0 auto; width: 100%;
+        }
+
+        /* 4: مربع (2 و 2) */
+        .grid-container.layout-4 {
+            grid-template-columns: 1fr 1fr; /* عمودين */
+            max-width: 500px; margin: 0 auto; width: 100%;
+        }
+        
+        /* 5+ : نفس نظام الـ 4 */
+        .grid-container.layout-more {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            width: 100%;
+        }
+
+        /* --- الأيقونة (Blob) بالشكل المتطور --- */
+        .user-blob {
+            aspect-ratio: 1; /* مربع بحواف دائرية */
+            border-radius: 30px; /* الشكل القديم */
+            background: rgba(20,20,20,0.8); border: 1px solid var(--border);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%; /* ليملأ الشبكة */
+        }
+        
+        .blob-avatar {
             width: 70px; height: 70px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; font-weight: 900; z-index: 10;
-            background: #1a1a1a; border: 2px solid rgba(255,255,255,0.1);
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            font-size: 2rem; font-weight: 800; color: rgba(0,0,0,0.7);
+            margin-bottom: 10px;
+            position: relative; z-index: 2;
         }
 
-        /* كانفاس الصوت (البرج) */
-        .audio-tower-canvas {
-            position: absolute;
-            bottom: 50%; left: 50%;
-            transform: translate(-50%, 50%);
-            width: 120px; height: 120px;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.6;
+        /* الموجات الصوتية المتطورة (Bars) */
+        .voice-visualizer {
+            display: flex; align-items: flex-end; justify-content: center; gap: 4px;
+            height: 30px; width: 60px;
+        }
+        .bar {
+            width: 6px; background: rgba(255,255,255,0.2); border-radius: 4px;
+            height: 4px; transition: height 0.05s ease;
         }
 
-        .btn-action { transition: 0.2s; }
-        .btn-action:active { transform: scale(0.92); }
+        .blob-name { font-size: 0.9rem; font-family: monospace; opacity: 0.7; }
+        .mic-icon { position: absolute; top: 15px; right: 15px; font-size: 0.9rem; opacity: 0.5; }
 
-        .view-section {
-            display: none; height: 100%; flex-direction: column;
-            animation: fadeIn 0.4s ease-out;
+        /* شريط التحكم القديم */
+        .dock {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(20,20,20,0.9); backdrop-filter: blur(20px);
+            padding: 10px 20px; border-radius: 40px; border: 1px solid var(--border);
+            display: flex; gap: 20px; z-index: 100;
         }
-        .view-section.active { display: flex; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
-        /* نافذة الطلبات */
-        .request-toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 400px;
-            background: rgba(20,20,20,0.95);
-            border: 1px solid var(--accent);
-            padding: 12px 20px; border-radius: 12px;
-            z-index: 1000;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .dock-btn {
+            width: 50px; height: 50px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.05); color: white; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        @keyframes slideDown { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, 0); } }
+        .dock-btn.active { background: white; color: black; }
+        .dock-btn.danger { color: #ff4757; background: rgba(255, 71, 87, 0.1); }
+
+        /* قائمة الفلاتر */
+        .filter-menu {
+            position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: rgba(20,20,20,0.95); border: 1px solid var(--border);
+            border-radius: 20px; padding: 10px; width: 200px;
+            display: flex; flex-direction: column; gap: 5px;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+            backdrop-filter: blur(10px); z-index: 90;
+        }
+        .filter-menu.show { opacity: 1; pointer-events: all; bottom: 90px; }
+        .filter-opt {
+            padding: 12px; border-radius: 12px; cursor: pointer;
+            display: flex; justify-content: space-between; font-size: 0.9rem;
+            color: #aaa; transition: 0.2s;
+        }
+        .filter-opt.selected { background: rgba(255,255,255,0.1); color: white; }
+
+        .audio-gate {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            z-index: 200; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.4s;
+        }
+        .audio-gate.show { opacity: 1; pointer-events: all; }
+
+        @keyframes glitch { 0% { clip: rect(10px, 9999px, 30px, 0); } 100% { clip: rect(80px, 9999px, 100px, 0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
     </style>
 </head>
-<body class="text-white">
+<body>
 
-    <div class="grid-bg"></div>
+    <div class="bg-mesh"></div>
 
-    <!-- 1. شاشة التنبيه (Gate) -->
-    <div id="v-gate" class="view-section active items-center justify-center p-6 text-center">
-        <div class="glass-panel p-8 max-w-sm w-full border-t-4 border-t-[var(--accent)]">
-            <i class="fas fa-broadcast-tower text-6xl mb-6 text-[var(--accent)] animate-pulse"></i>
-            <h1 class="text-3xl font-black mb-2 tracking-tighter">TOWER</h1>
-            <p class="text-gray-400 mb-8 text-sm">منصة الاتصال الصوتي المؤمنة</p>
-            <button onclick="enterSite()" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 btn-action">
-                اتصال بالخادم
+    <!-- الصفحة الرئيسية (التصميم القديم) -->
+    <div class="app-view active" id="v-home">
+        <div style="margin: auto; width: 100%; text-align: center;">
+            <div class="mystery-badge" id="my-badge" style="background: #333; color: #fff;">?</div>
+            <h1 class="glitch-text" data-text="مجهول">مجهول</h1>
+            <p id="id-text">جاري تعيين هويتك...</p>
+
+            <button class="btn-ghost rejoin-btn" id="rejoin-btn" onclick="restoreSession()">
+                <span>استئناف المكالمة</span> <i class="fas fa-undo"></i>
+            </button>
+
+            <button class="btn-ghost" onclick="createRoom()">
+                <span>إنشاء غرفة</span> <i class="fas fa-fingerprint"></i>
             </button>
         </div>
     </div>
 
-    <!-- 2. الرئيسية (Home) -->
-    <div id="v-home" class="view-section items-center justify-center p-6 relative">
-        <div class="text-center w-full max-w-md">
-            <div class="flex justify-center mb-8 relative">
-                <div class="absolute inset-0 bg-[var(--accent)] blur-[40px] opacity-20 rounded-full"></div>
-                <div id="my-avatar" class="avatar-circle text-[var(--accent)] border-[var(--accent)]">T</div>
-            </div>
-            
-            <h2 class="text-4xl font-black mb-2 tracking-tighter">TOWER</h2>
-            <div class="h-1 w-12 bg-[var(--accent)] mx-auto mb-8 rounded-full"></div>
-
-            <button onclick="createRoom()" class="w-full glass-panel py-5 mb-4 flex items-center justify-center gap-3 btn-action hover:bg-white/5 border border-white/10">
-                <span class="font-bold text-lg">إنشاء برج جديد</span>
-                <i class="fas fa-plus text-[var(--accent)]"></i>
+    <!-- الغرفة -->
+    <div class="app-view" id="v-room">
+        <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-family: monospace; opacity: 0.6;"><i class="fas fa-circle" style="color:red; font-size:10px;"></i> LIVE</div>
+            <button onclick="copyLink()" style="background:rgba(255,255,255,0.1); border:none; color:white; padding:5px 10px; border-radius:10px; cursor:pointer;">
+                <i class="fas fa-share-alt"></i> نسخ الرابط
             </button>
-            
-            <p id="join-status" class="mt-4 text-xs text-gray-500 font-mono"></p>
         </div>
+
+        <div class="grid-container" id="grid"></div>
+
+        <div class="filter-menu" id="filter-menu">
+            <div class="filter-opt selected" onclick="applyFilter('none', this)">طبيعي</div>
+            <div class="filter-opt" onclick="applyFilter('deep', this)">صوت ضخم</div>
+            <div class="filter-opt" onclick="applyFilter('radio', this)">راديو</div>
+            <div class="filter-opt" onclick="applyFilter('echo', this)">صدى</div>
+        </div>
+
+        <div class="dock">
+            <button class="dock-btn danger" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+            <button class="dock-btn active" id="mic-btn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
+            <button class="dock-btn" onclick="toggleFilters()"><i class="fas fa-sliders-h"></i></button>
+        </div>
+        
+        <div id="audio-streams" style="display:none;"></div>
     </div>
 
-    <!-- 3. الغرفة (Room) -->
-    <div id="v-room" class="view-section relative">
-        <!-- الرأس -->
-        <div class="p-4 flex justify-between items-center glass-panel m-4">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-signal text-[var(--success)] text-xs"></i>
-                <span class="text-sm font-bold tracking-widest text-[var(--accent)]">TOWER <span id="room-id-disp" class="text-white opacity-50 font-mono">ID</span></span>
-            </div>
-            <button onclick="copyLink()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 btn-action">
-                <i class="fas fa-link text-xs"></i>
-            </button>
-        </div>
-
-        <!-- حالة الانتظار -->
-        <div id="waiting-screen" class="hidden absolute inset-0 bg-black/95 z-50 flex-col items-center justify-center text-center p-6">
-            <i class="fas fa-lock text-4xl text-gray-500 mb-4"></i>
-            <h3 class="text-xl font-bold mb-2">البرج مغلق</h3>
-            <p class="text-gray-500 text-sm">في انتظار إذن المسؤول...</p>
-        </div>
-
-        <!-- شبكة المتصلين -->
-        <div id="users-grid" class="flex-1 p-4 grid grid-cols-2 gap-4 content-start overflow-y-auto pb-32">
-            <!-- Users Injected Here -->
-        </div>
-
-        <!-- التحكم -->
-        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 glass-panel px-6 py-3 rounded-2xl shadow-2xl z-40">
-            <button onclick="leaveRoom()" class="text-gray-400 hover:text-[var(--danger)] btn-action text-xl">
-                <i class="fas fa-power-off"></i>
-            </button>
-            
-            <button id="mic-btn" onclick="toggleMic()" class="w-14 h-14 rounded-full bg-[var(--accent)] text-black flex items-center justify-center text-xl btn-action shadow-lg shadow-[var(--accent)]/30">
-                <i class="fas fa-microphone"></i>
-            </button>
-
-            <button id="lock-btn" onclick="toggleLock()" class="text-gray-400 hover:text-white btn-action text-xl hidden">
-                <i class="fas fa-lock-open"></i>
-            </button>
-        </div>
+    <div class="audio-gate" id="audio-gate">
+        <i class="fas fa-fingerprint" style="font-size: 4rem; color: rgba(255,255,255,0.2); margin-bottom: 20px;"></i>
+        <h2 style="color: white; margin-bottom: 10px;">دخول آمن</h2>
+        <button class="btn-ghost" onclick="confirmEntry()" style="background: white; color: black; border: none; margin-top: 20px; width: 200px;">
+            موافق
+        </button>
     </div>
-
-    <div id="requests-container"></div>
-    <!-- حاوية عناصر الصوت المخفية -->
-    <div id="audio-container" style="display: none;"></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, remove, onDisconnect, push, child, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Config
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        const firebaseConfig = {
             apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8",
             authDomain: "story-97cf7.firebaseapp.com",
             databaseURL: "https://story-97cf7-default-rtdb.firebaseio.com",
@@ -198,431 +267,237 @@
             messagingSenderId: "742801388214",
             appId: "1:742801388214:web:32a305a8057b0582c5ec17"
         };
-        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const auth = getAuth(app);
 
-        // Path Prefix fix for permissions
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const ROOMS_PATH = `artifacts/${appId}/rooms`;
-
-        // State
-        let myUser = JSON.parse(localStorage.getItem('tower_user')) || createIdentity();
-        let currentRoom = null;
+        let user = JSON.parse(localStorage.getItem('ghost_user')) || generateIdentity();
+        localStorage.setItem('ghost_user', JSON.stringify(user));
+        
+        let activeRoom = null;
         let isHost = false;
         let localStream = null;
-        let peerConnections = {}; 
+        let peer = null;
+        let myPeerId = null;
+        let audioCtx, audioSource, audioDestination, currentFilterNode;
         let isMuted = false;
-        
-        // Audio & Visualizer Context
-        let audioCtx;
-        const analysers = {}; // uid -> AnalyserNode
-        
-        const rtcConfig = { 
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ] 
-        };
 
-        // --- Setup ---
+        document.getElementById('my-badge').innerText = user.letter;
+        document.getElementById('my-badge').style.backgroundColor = user.color;
+        document.getElementById('my-badge').style.boxShadow = `0 0 30px ${user.color}`;
+        document.getElementById('id-text').innerHTML = `هويتك: <span style="color:${user.color};">${user.letter}</span>`;
+
         window.onload = async () => {
-            updateMyAvatar();
-            
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+            const savedRoom = localStorage.getItem('ghost_active_room');
+            if (savedRoom) {
+                const snap = await get(ref(db, `rooms/${savedRoom}`));
+                if (snap.exists()) {
+                    document.getElementById('rejoin-btn').classList.add('visible');
+                    activeRoom = savedRoom;
+                    isHost = (localStorage.getItem('ghost_is_host') === 'true');
                 } else {
-                    await signInAnonymously(auth);
+                    localStorage.removeItem('ghost_active_room');
+                    localStorage.removeItem('ghost_is_host');
                 }
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('room')) window.pendingRoom = urlParams.get('room');
-
-                // Start Visualizer Loop
-                requestAnimationFrame(drawVisualizers);
-
-            } catch (error) {
-                console.error("Auth Error", error);
+            }
+            if (new URLSearchParams(location.search).get('room')) {
+                activeRoom = new URLSearchParams(location.search).get('room');
+                document.getElementById('rejoin-btn').classList.remove('visible');
+                document.getElementById('audio-gate').classList.add('show');
             }
         };
 
-        function createIdentity() {
+        function generateIdentity() {
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const char = chars.charAt(Math.floor(Math.random() * chars.length));
-            const hue = Math.floor(Math.random() * 360);
-            const identity = {
-                id: 'u_' + Date.now().toString().substr(-6),
-                char: char,
-                color: `hsl(${hue}, 80%, 60%)`
+            return {
+                id: 'u_' + Date.now() + Math.random().toString(36).substr(2,4),
+                letter: chars.charAt(Math.floor(Math.random() * chars.length)),
+                color: `hsl(${Math.floor(Math.random() * 360)}, 80%, 60%)`
             };
-            localStorage.setItem('tower_user', JSON.stringify(identity));
-            return identity;
         }
 
-        function updateMyAvatar() {
-            const av = document.getElementById('my-avatar');
-            av.innerText = myUser.char;
-            av.style.borderColor = myUser.color;
-            av.style.color = myUser.color;
-            av.style.boxShadow = `0 0 20px ${myUser.color}40`;
-        }
-
-        // --- Core ---
-        window.enterSite = async () => {
-            try {
-                // 1. Init Audio Context and RESUME it immediately (User Gesture)
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') {
-                    await audioCtx.resume();
-                }
-                
-                // 2. Get Mic
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // 3. Setup Local Visualizer
-                setupLocalAudio(localStream);
-
-            } catch (err) {
-                console.error(err);
-                alert("الميكروفون مطلوب للاتصال. يرجى التأكد من السماح له.");
-                return;
-            }
-
-            if (window.pendingRoom) joinRoom(window.pendingRoom);
-            else switchView('v-home');
-        };
-
-        function setupLocalAudio(stream) {
-            const src = audioCtx.createMediaStreamSource(stream);
-            const analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 64;
-            analyser.smoothingTimeConstant = 0.6; // Smoother visual
-            src.connect(analyser);
-            // DO NOT connect to destination (speakers) to avoid echo
-            analysers[myUser.id] = analyser;
-        }
-
-        window.createRoom = async () => {
-            const roomId = Date.now().toString(36).substr(-6).toUpperCase();
+        window.createRoom = () => {
+            activeRoom = Date.now().toString(36);
             isHost = true;
-            await set(ref(db, `${ROOMS_PATH}/${roomId}/config`), { host: myUser.id, locked: false });
-            joinRoom(roomId);
+            localStorage.setItem('ghost_active_room', activeRoom);
+            localStorage.setItem('ghost_is_host', 'true');
+            document.getElementById('audio-gate').classList.add('show');
         };
 
-        async function joinRoom(roomId) {
-            currentRoom = roomId;
-            switchView('v-room');
-            document.getElementById('room-id-disp').innerText = roomId;
+        window.restoreSession = () => document.getElementById('audio-gate').classList.add('show');
 
-            const configSnap = await get(ref(db, `${ROOMS_PATH}/${roomId}/config`));
-            const config = configSnap.val();
-
-            if (config && config.host === myUser.id) {
-                isHost = true;
-                document.getElementById('lock-btn').classList.remove('hidden');
-                listenForRequests();
-            } else {
-                isHost = false;
-                document.getElementById('lock-btn').classList.add('hidden');
-            }
-
-            if (config && config.locked && !isHost) {
-                document.getElementById('waiting-screen').classList.remove('hidden');
-                const reqRef = ref(db, `${ROOMS_PATH}/${roomId}/requests/${myUser.id}`);
-                set(reqRef, { ...myUser, timestamp: Date.now() });
-                onDisconnect(reqRef).remove();
-
-                const statusRef = ref(db, `${ROOMS_PATH}/${roomId}/approvals/${myUser.id}`);
-                onValue(statusRef, (snap) => {
-                    if (snap.val() === true) {
-                        document.getElementById('waiting-screen').classList.add('hidden');
-                        enterRoomLogic();
-                        remove(reqRef);
-                    }
-                });
-            } else {
-                enterRoomLogic();
-            }
-        }
-
-        function enterRoomLogic() {
-            const userRef = ref(db, `${ROOMS_PATH}/${currentRoom}/users/${myUser.id}`);
-            set(userRef, { ...myUser, muted: false });
-            onDisconnect(userRef).remove();
-
-            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/users`), (snap) => {
-                const users = snap.val() || {};
-                renderUsers(users);
-                handlePeerConnections(users);
-            });
-
-            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/config/locked`), (snap) => {
-                const isLocked = snap.val();
-                const lockBtn = document.getElementById('lock-btn');
-                lockBtn.innerHTML = isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-lock-open"></i>';
-                lockBtn.style.color = isLocked ? '#ff4757' : '#fff';
-            });
-
-            listenForSignals();
-        }
-
-        // --- WebRTC & Audio Routing (Fixed) ---
-        function handlePeerConnections(users) {
-            Object.keys(users).forEach(uid => {
-                if (uid === myUser.id) return;
-                if (!peerConnections[uid]) startPeerConnection(uid);
-            });
-
-            // Cleanup
-            Object.keys(peerConnections).forEach(uid => {
-                if (!users[uid]) {
-                    if(peerConnections[uid]) peerConnections[uid].close();
-                    delete peerConnections[uid];
-                    delete analysers[uid]; 
-                    // Remove audio element
-                    const el = document.getElementById(`audio-${uid}`);
-                    if(el) el.remove();
-                }
-            });
-        }
-
-        function startPeerConnection(targetUid) {
-            const pc = new RTCPeerConnection(rtcConfig);
-            peerConnections[targetUid] = pc;
-
-            // Add tracks
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-            // HANDLE INCOMING STREAM
-            pc.ontrack = (event) => {
-                const remoteStream = event.streams[0];
-                
-                // 1. PLAYBACK: Create HTML Audio Element (Most Reliable)
-                let audioEl = document.getElementById(`audio-${targetUid}`);
-                if (!audioEl) {
-                    audioEl = document.createElement('audio');
-                    audioEl.id = `audio-${targetUid}`;
-                    audioEl.autoplay = true;
-                    audioEl.playsInline = true; // For iOS
-                    document.getElementById('audio-container').appendChild(audioEl);
-                }
-                audioEl.srcObject = remoteStream;
-                audioEl.play().catch(e => console.log("Audio play error", e));
-
-                // 2. VISUALIZATION: Clone for Web Audio API
-                // We use a clone or connect the stream to analyzer WITHOUT connecting to destination
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                
-                const src = audioCtx.createMediaStreamSource(remoteStream);
-                const analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 64;
-                analyser.smoothingTimeConstant = 0.6;
-                src.connect(analyser);
-                // NOTE: Do NOT connect analyser to audioCtx.destination here, 
-                // because the <audio> tag is already playing the sound. 
-                // Connecting it again would cause echo or double volume.
-                
-                analysers[targetUid] = analyser;
-            };
-
-            pc.onicecandidate = (event) => {
-                if (event.candidate) sendSignal(targetUid, { type: 'candidate', candidate: event.candidate.toJSON() });
-            };
-
-            if (myUser.id < targetUid) {
-                pc.createOffer({ offerToReceiveAudio: true }).then(offer => {
-                    pc.setLocalDescription(offer);
-                    sendSignal(targetUid, { type: 'offer', sdp: offer });
-                });
-            }
-        }
-
-        // --- Visualizer Loop (The Tower Effect) ---
-        function drawVisualizers() {
-            requestAnimationFrame(drawVisualizers);
-            
-            Object.keys(analysers).forEach(uid => {
-                const canvas = document.getElementById(`vis-${uid}`);
-                if (!canvas) return;
-                
-                const ctx = canvas.getContext('2d');
-                const analyser = analysers[uid];
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                
-                analyser.getByteFrequencyData(dataArray);
-                
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2;
-                const radius = 38; 
-                
-                const bars = 20;
-                const step = (Math.PI * 2) / bars;
-                
-                for (let i = 0; i < bars; i++) {
-                    const val = dataArray[i] || 0;
-                    const barHeight = (val / 255) * 30;
-                    const angle = i * step;
-                    
-                    const x1 = centerX + Math.cos(angle) * radius;
-                    const y1 = centerY + Math.sin(angle) * radius;
-                    
-                    const x2 = centerX + Math.cos(angle) * (radius + barHeight);
-                    const y2 = centerY + Math.sin(angle) * (radius + barHeight);
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.lineWidth = 4;
-                    // Dynamic color based on volume
-                    ctx.strokeStyle = val > 10 ? `hsl(180, 100%, 50%)` : 'rgba(255,255,255,0.05)';
-                    ctx.lineCap = 'round';
-                    ctx.stroke();
-                }
-            });
-        }
-
-        // --- UI ---
-        function renderUsers(users) {
-            const grid = document.getElementById('users-grid');
-            
-            // Cleanup old
-            Array.from(grid.children).forEach(child => {
-                const uid = child.id.replace('card-', '');
-                if (!users[uid]) child.remove();
-            });
-
-            // Add/Update
-            Object.keys(users).forEach(uid => {
-                const u = users[uid];
-                let card = document.getElementById(`card-${uid}`);
-                
-                if (!card) {
-                    card = document.createElement('div');
-                    card.id = `card-${uid}`;
-                    card.className = 'glass-panel p-4 user-card aspect-square';
-                    card.innerHTML = `
-                        <canvas id="vis-${uid}" class="audio-tower-canvas" width="120" height="120"></canvas>
-                        <div class="avatar-circle mb-2" style="border-color:${u.color}; color:${u.color}; box-shadow: 0 0 15px ${u.color}30">
-                            ${u.char}
-                            <div id="mute-${uid}" class="hidden absolute bottom-0 right-0 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs border border-black"><i class="fas fa-microphone-slash"></i></div>
-                        </div>
-                        <div class="text-sm font-bold tracking-wider">${uid === myUser.id ? 'YOU' : 'GUEST'}</div>
-                    `;
-                    grid.appendChild(card);
-                }
-                
-                const muteIcon = card.querySelector(`#mute-${uid}`);
-                if (u.muted) muteIcon.classList.remove('hidden');
-                else muteIcon.classList.add('hidden');
-            });
-        }
-
-        // --- Signaling ---
-        function sendSignal(target, data) {
-            push(ref(db, `${ROOMS_PATH}/${currentRoom}/signals/${target}/${myUser.id}`), data);
-        }
-
-        function listenForSignals() {
-            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/signals/${myUser.id}`), (snap) => {
-                const senders = snap.val() || {};
-                Object.keys(senders).forEach(senderId => {
-                    Object.values(senders[senderId]).forEach(signal => {
-                        handleSignal(senderId, signal);
-                    });
-                    remove(ref(db, `${ROOMS_PATH}/${currentRoom}/signals/${myUser.id}/${senderId}`));
-                });
-            });
-        }
-
-        async function handleSignal(senderId, signal) {
-            if (!peerConnections[senderId]) startPeerConnection(senderId);
-            const pc = peerConnections[senderId];
-            
+        window.confirmEntry = async () => {
             try {
-                if (signal.type === 'offer') {
-                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-                    const answer = await pc.createAnswer();
-                    await pc.setLocalDescription(answer);
-                    sendSignal(senderId, { type: 'answer', sdp: answer });
-                } else if (signal.type === 'answer') {
-                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-                } else if (signal.type === 'candidate') {
-                    await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+                await initAudio();
+                setupPeer();
+                document.getElementById('audio-gate').classList.remove('show');
+                document.getElementById('v-home').classList.remove('active');
+                document.getElementById('v-room').classList.add('active');
+            } catch (e) { alert("يجب تفعيل المايكروفون"); }
+        };
+
+        async function initAudio() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioSource = audioCtx.createMediaStreamSource(stream);
+            audioDestination = audioCtx.createMediaStreamDestination();
+            audioSource.connect(audioDestination);
+            localStream = audioDestination.stream;
+            initVisualizer(audioSource, user.id);
+        }
+
+        window.applyFilter = (type, elem) => {
+            document.querySelectorAll('.filter-opt').forEach(el => el.classList.remove('selected'));
+            elem.classList.add('selected');
+            document.getElementById('filter-menu').classList.remove('show');
+            audioSource.disconnect();
+            if(currentFilterNode) currentFilterNode.disconnect();
+            if(type === 'none') {
+                audioSource.connect(audioDestination);
+            } else {
+                // فلترات بسيطة
+                let node;
+                if(type === 'deep') {
+                    node = audioCtx.createBiquadFilter();
+                    node.type = 'lowpass'; node.frequency.value = 500;
+                } else if(type === 'radio') {
+                    node = audioCtx.createBiquadFilter();
+                    node.type = 'bandpass'; node.frequency.value = 2000;
+                } else if(type === 'echo') {
+                    node = audioCtx.createDelay(); node.delayTime.value = 0.2;
+                    const fb = audioCtx.createGain(); fb.gain.value = 0.4;
+                    node.connect(fb); fb.connect(node);
+                    audioSource.connect(node);
                 }
-            } catch(e) {
-                console.warn("Signaling error", e);
+                if(node) {
+                    audioSource.connect(node);
+                    node.connect(audioDestination);
+                    currentFilterNode = node;
+                }
             }
-        }
-
-        // Admin & Controls
-        window.toggleLock = () => {
-            if (!isHost) return;
-            get(ref(db, `${ROOMS_PATH}/${currentRoom}/config/locked`)).then(snap => {
-                set(ref(db, `${ROOMS_PATH}/${currentRoom}/config/locked`), !snap.val());
-            });
         };
 
-        function listenForRequests() {
-            onValue(ref(db, `${ROOMS_PATH}/${currentRoom}/requests`), (snap) => {
-                const reqs = snap.val() || {};
-                const c = document.getElementById('requests-container');
-                c.innerHTML = '';
-                Object.keys(reqs).forEach(uid => {
-                    const r = reqs[uid];
-                    const d = document.createElement('div');
-                    d.className = 'request-toast';
-                    d.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold bg-gray-800 text-[var(--accent)] border border-[var(--accent)]">${r.char}</div>
-                            <span class="text-sm">طلب انضمام...</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="decide('${uid}', true)" class="w-8 h-8 rounded-full bg-[var(--success)] text-black flex items-center justify-center"><i class="fas fa-check"></i></button>
-                            <button onclick="decide('${uid}', false)" class="w-8 h-8 rounded-full bg-[var(--danger)] text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
-                        </div>
-                    `;
-                    c.appendChild(d);
-                });
+        function setupPeer() {
+            peer = new Peer(user.id);
+            peer.on('open', (id) => {
+                myPeerId = id;
+                joinRoom();
+            });
+            peer.on('call', (call) => {
+                call.answer(localStream);
+                call.on('stream', (st) => playAudio(st, call.peer));
             });
         }
 
-        window.decide = (uid, allow) => {
-            if (allow) set(ref(db, `${ROOMS_PATH}/${currentRoom}/approvals/${uid}`), true);
-            remove(ref(db, `${ROOMS_PATH}/${currentRoom}/requests/${uid}`));
-        };
+        function joinRoom() {
+            const refUser = ref(db, `rooms/${activeRoom}/users/${user.id}`);
+            set(refUser, { letter: user.letter, color: user.color, peerId: myPeerId, joinedAt: Date.now() });
+            
+            onValue(ref(db, `rooms/${activeRoom}`), (snap) => {
+                if(!snap.exists()) forceExit();
+                else if(snap.val().users) {
+                    renderGrid(snap.val().users);
+                    connectPeers(snap.val().users);
+                }
+            });
+        }
 
+        function renderGrid(users) {
+            const grid = document.getElementById('grid');
+            const arr = Object.values(users).sort((a,b) => b.joinedAt - a.joinedAt); // الأحدث فوق
+            
+            // --- منطق الشبكة الذي طلبته بالحرف ---
+            grid.className = 'grid-container';
+            if (arr.length === 1) grid.classList.add('layout-1'); // منتصف
+            else if (arr.length === 2) grid.classList.add('layout-2'); // جنب بعض
+            else if (arr.length === 3) grid.classList.add('layout-3'); // تحت بعض
+            else if (arr.length === 4) grid.classList.add('layout-4'); // 2 و 2
+            else grid.classList.add('layout-more');
+
+            grid.innerHTML = '';
+            arr.forEach(u => {
+                const div = document.createElement('div');
+                div.className = 'user-blob';
+                div.id = `blob-${u.peerId}`;
+                div.innerHTML = `
+                    <div class="blob-avatar" style="background: ${u.color}; box-shadow: 0 0 20px ${u.color};">
+                        ${u.letter}
+                    </div>
+                    <div class="blob-name">${u.peerId === myPeerId ? 'أنت' : 'مجهول'}</div>
+                    <div class="mic-icon">${u.muted ? '<i class="fas fa-microphone-slash" style="color:#ff4757"></i>' : ''}</div>
+                    <div class="voice-visualizer">
+                        <div class="bar" style="background:${u.color}"></div>
+                        <div class="bar" style="background:${u.color}"></div>
+                        <div class="bar" style="background:${u.color}"></div>
+                        <div class="bar" style="background:${u.color}"></div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        const connected = {};
+        function connectPeers(users) {
+            Object.values(users).forEach(u => {
+                if(u.peerId !== myPeerId && !connected[u.peerId]) {
+                    const call = peer.call(u.peerId, localStream);
+                    call.on('stream', (s) => playAudio(s, u.peerId));
+                    connected[u.peerId] = call;
+                }
+            });
+        }
+
+        function playAudio(stream, id) {
+            if(document.getElementById(`aud-${id}`)) return;
+            const aud = document.createElement('audio');
+            aud.id = `aud-${id}`; aud.srcObject = stream; aud.autoplay = true;
+            document.getElementById('audio-streams').appendChild(aud);
+            
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const src = ctx.createMediaStreamSource(stream);
+            initVisualizer(src, id, ctx);
+        }
+
+        function initVisualizer(src, id, ctx = audioCtx) {
+            const analyser = ctx.createAnalyser(); analyser.fftSize = 32;
+            src.connect(analyser);
+            const data = new Uint8Array(analyser.frequencyBinCount);
+            const loop = () => {
+                if(!activeRoom) return;
+                analyser.getByteFrequencyData(data);
+                const el = document.getElementById(`blob-${id}`);
+                if(el) {
+                    const bars = el.querySelectorAll('.bar');
+                    bars.forEach((b,i) => b.style.height = `${Math.max(4, (data[i] / 255) * 25)}px`);
+                }
+                requestAnimationFrame(loop);
+            };
+            loop();
+        }
+
+        window.toggleFilters = () => document.getElementById('filter-menu').classList.toggle('show');
         window.toggleMic = () => {
             isMuted = !isMuted;
-            if (localStream) localStream.getAudioTracks()[0].enabled = !isMuted;
-            
-            const btn = document.getElementById('mic-btn');
-            btn.style.backgroundColor = isMuted ? 'var(--danger)' : 'var(--accent)';
-            btn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash text-white"></i>' : '<i class="fas fa-microphone text-black"></i>';
-            
-            if (currentRoom) update(ref(db, `${ROOMS_PATH}/${currentRoom}/users/${myUser.id}`), { muted: isMuted });
+            if(localStream) localStream.getAudioTracks()[0].enabled = !isMuted;
+            document.getElementById('mic-btn').innerHTML = isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+            document.getElementById('mic-btn').classList.toggle('danger');
         };
 
-        window.leaveRoom = () => {
-            if (currentRoom) remove(ref(db, `${ROOMS_PATH}/${currentRoom}/users/${myUser.id}`));
-            location.href = location.href.split('?')[0];
+        window.endCall = async () => {
+            if(isHost) await remove(ref(db, `rooms/${activeRoom}`));
+            else await remove(ref(db, `rooms/${activeRoom}/users/${user.id}`));
+            forceExit();
         };
+
+        function forceExit() {
+            localStorage.removeItem('ghost_active_room');
+            localStorage.removeItem('ghost_is_host');
+            location.href = location.origin + location.pathname;
+        }
 
         window.copyLink = () => {
-            navigator.clipboard.writeText(`${location.origin}${location.pathname}?room=${currentRoom}`);
-            const btn = event.currentTarget;
-            btn.innerHTML = '<i class="fas fa-check text-[var(--success)]"></i>';
-            setTimeout(() => btn.innerHTML = '<i class="fas fa-link text-xs"></i>', 1500);
+            navigator.clipboard.writeText(`${location.origin}${location.pathname}?room=${activeRoom}`);
+            alert("تم نسخ الرابط");
         };
-
-        function switchView(id) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
     </script>
 </body>
 </html>
