@@ -3,26 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TAQWA – تقوى</title>
-    <meta name="description" content="منصة تقوى TAQWA: القرآن الكريم، أذكار، ومصحف معلم.">
-    <meta name="keywords" content="تقوى, TAQWA, قرآن, أذكار">
+    <title>TAQWA – تقوى | القرآن الكريم والأذكار والمصحف المعلم</title>
+    <meta name="description" content="منصة وتطبيق تقوى (TAQWA) الإسلامي الشامل. استمع للقرآن الكريم بأصوات أشهر القراء، والمصحف المعلم للأطفال، وأذكار الصباح والمساء، وعداد التسبيح الإلكتروني.">
+    <meta name="keywords" content="تقوى, TAQWA, قرآن كريم, استماع قرآن, أذكار, تسبيح, سبحة إلكترونية, مصحف معلم, تطبيق إسلامي, مواقيت الصلاة, مشاري العفاسي, إسلام">
     <meta name="author" content="TAQWA">
+    <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#1E4D40">
-    
-    <meta property="og:title" content="TAQWA – تقوى">
-    <meta property="og:description" content="القرآن الكريم والأذكار في تطبيق واحد.">
-    <meta property="og:image" content="https://i.postimg.cc/QNw8srJx/download-(72).jpg">
+    <link rel="canonical" href="https://your-website-url.com">
+
+    <meta property="og:title" content="TAQWA – تقوى | تطبيقك الإسلامي اليومي">
+    <meta property="og:description" content="استمع للقرآن الكريم، ردد الأذكار، واستخدم السبحة الإلكترونية في منصة واحدة سهلة الاستخدام.">
+    <meta property="og:image" content="https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg">
     <meta property="og:url" content="https://your-website-url.com">
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TAQWA">
 
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5350/5350172.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5350/5350172.png">
+    <link rel="icon" href="https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg" type="image/jpeg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TAQWA">
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "TAQWA - تقوى",
+      "url": "https://your-website-url.com",
+      "description": "تطبيق إسلامي شامل يوفر القرآن الكريم مسموعاً ومقروءاً، الأذكار، والتسبيح.",
+      "applicationCategory": "ReligiousApplication",
+      "operatingSystem": "Android, iOS, Windows, macOS",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "TAQWA"
+      },
+      "image": "https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg"
+    }
+    </script>
 
     <style>
         :root { --primary: #0f2e26; --gold: #C5A059; --white: #ffffff; --bg-body: #f8f9fa; }
@@ -39,8 +65,24 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 1s;
         }
-        .splash-logo { width: 100px; height: 100px; border-radius: 20px; background: var(--gold); display: flex; justify-content: center; align-items: center; margin-bottom: 20px; box-shadow: 0 0 30px rgba(197, 160, 89, 0.4); }
-        .splash-text { font-size: 2.5rem; color: white; font-weight: 900; letter-spacing: 1px; }
+        
+        .splash-logo { 
+            width: 160px; height: 160px; 
+            display: flex; justify-content: center; align-items: center; 
+            margin-bottom: 25px; 
+        }
+        .splash-logo img { 
+            width: 100%; height: 100%; 
+            object-fit: cover;
+            border-radius: 35%;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.5),
+                0 5px 15px rgba(0,0,0,0.3),
+                inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+            border: 4px solid var(--gold);
+            transform: perspective(500px) translateZ(20px);
+        }
+        .splash-text { font-size: 2.5rem; color: white; font-weight: 900; letter-spacing: 1px; margin-top: 10px; text-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
         .app-container { display: flex; height: 100%; position: relative; }
         .sidebar {
@@ -100,12 +142,23 @@
         .mini-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; background: #eee; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
         #kaaba-icon {
-            position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px; 
-            background: var(--white); border-radius: 18px; display: none; z-index: 999;
-            justify-content: center; align-items: center; box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-            cursor: pointer; border: 2px solid var(--gold);
+            position: fixed; bottom: 100px; right: 20px; 
+            width: 70px; height: 70px; 
+            background: var(--white);
+            border-radius: 50%; 
+            display: none; z-index: 999;
+            justify-content: center; align-items: center; 
+            cursor: pointer; 
+            border: 2px solid var(--gold);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: float 3s ease-in-out infinite;
         }
-        #kaaba-icon img { width: 40px; height: 40px; object-fit: contain; }
+        #kaaba-icon img { 
+            width: 100%; height: 100%; 
+            object-fit: cover; 
+        }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
         .tasbih-container { display: flex; flex-direction: column; align-items: center; height: 65vh; justify-content: center; }
         .tasbih-circle {
@@ -150,7 +203,9 @@
 <body>
     
     <div id="splash">
-        <div class="splash-logo"><i class="fas fa-kaaba fa-3x" style="color:var(--primary)"></i></div>
+        <div class="splash-logo">
+            <img src="https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg" alt="TAQWA Icon">
+        </div>
         <div class="splash-text">TAQWA</div>
     </div>
 
@@ -243,7 +298,7 @@
     </div>
 
     <div id="kaaba-icon" onclick="maximizePlayer()">
-        <img src="https://cdn-icons-png.flaticon.com/512/5350/5350172.png" alt="Taqa">
+        <img src="https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg" alt="TAQWA">
     </div>
 
     <div id="playlistModal" style="position:fixed; bottom:0; left:0; width:100%; height:75vh; background:white; z-index:1000; border-radius:25px 25px 0 0; box-shadow:0 -10px 50px rgba(0,0,0,0.2); transform:translateY(110%); transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column;">
@@ -421,7 +476,7 @@
                     title: surah.name,
                     artist: reciterName,
                     album: 'TAQWA',
-                    artwork: [{ src: 'https://cdn-icons-png.flaticon.com/512/5350/5350172.png', sizes: '512x512', type: 'image/png' }]
+                    artwork: [{ src: 'https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg', sizes: '512x512', type: 'image/jpeg' }]
                 });
                 navigator.mediaSession.setActionHandler('play', togglePlay);
                 navigator.mediaSession.setActionHandler('pause', togglePlay);
