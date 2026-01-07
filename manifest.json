@@ -1,0 +1,22 @@
+{
+  "name": "TAQWA - تقوى",
+  "short_name": "TAQWA",
+  "description": "تطبيق إسلامي شامل للقرآن والأذكار",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1E4D40",
+  "theme_color": "#1E4D40",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5350/5350172.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5350/5350172.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
