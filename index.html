@@ -2,716 +2,415 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق نور - النسخة المطورة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ترتيل</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5350/5350172.png" type="image/png">
+    <meta name="theme-color" content="#1E4D40">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
-            --primary: #1E4D40;
+            --primary: #0f2e26;
             --gold: #C5A059;
-            --bg-body: #f5f5f0;
             --white: #ffffff;
-            --glass: rgba(255, 255, 255, 0.95);
+            --bg-body: #f4f4f4;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
+            font-family: 'Tajawal', sans-serif;
             background-color: var(--bg-body);
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e4d40' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             color: #333;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
-
-        #splashScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--primary);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            transition: opacity 1s ease-in-out;
-        }
-
-        .splash-icon {
-            font-size: 5rem;
-            color: var(--gold);
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-
-        .splash-text {
-            font-family: 'Amiri', serif;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
+        .app-container { display: flex; height: 100%; position: relative; }
         .sidebar {
-            width: 80px;
-            background: var(--white);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            box-shadow: -2px 0 15px rgba(0,0,0,0.1);
-            z-index: 100;
+            width: 80px; background: var(--white);
+            box-shadow: 2px 0 20px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column;
+            align-items: center; padding-top: 30px; z-index: 100;
         }
-
-        .nav-item {
-            width: 50px;
-            height: 50px;
-            margin: 15px 0;
-            border-radius: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            color: #888;
-            transition: 0.3s;
-            font-size: 1.4rem;
+        .nav-btn {
+            width: 50px; height: 50px; margin: 15px 0; border-radius: 16px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; color: #ccc; cursor: pointer; transition: 0.3s;
         }
-
-        .nav-item.active {
-            background: var(--primary);
-            color: var(--white);
-            box-shadow: 0 5px 15px rgba(30, 77, 64, 0.4);
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            padding-bottom: 100px;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .section {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
+        .nav-btn.active { background: var(--primary); color: var(--gold); transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .content-area { flex: 1; padding: 20px; padding-bottom: 150px; overflow-y: auto; }
+        .section { display: none; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .quran-header {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+        @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+        
+        .reciters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .reciter-card {
+            background: var(--white); border-radius: 20px; padding: 15px; text-align: center;
+            position: relative; box-shadow: 0 5px 10px rgba(0,0,0,0.05); transition: 0.2s; border: 2px solid transparent;
         }
-
-        .surah-select {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
-            border: 2px solid #ddd;
-            font-size: 1.1rem;
-            outline: none;
+        .reciter-card:active { transform: scale(0.96); }
+        .avatar-unified {
+            width: 70px; height: 70px; margin: 0 auto 10px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #000);
+            display: flex; justify-content: center; align-items: center;
+            color: var(--gold); font-size: 1.8rem; border: 3px solid #f0f0f0;
         }
-
-        .zoom-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            cursor: pointer;
+        .pin-icon { position: absolute; top: 10px; left: 10px; color: #ddd; font-size: 1.1rem; z-index: 2; transition: 0.2s; }
+        .pin-icon.active { color: var(--gold); }
+        
+        #persistent-player {
+            position: fixed; bottom: 20px; left: 15px; right: 15px;
+            background: linear-gradient(to right, #153e32, #0f2e26);
+            border-radius: 25px; padding: 15px; display: none;
+            align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 900;
         }
-
-        .quran-page {
-            background: #FFFBF0;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border: 1px solid #E6DCC3;
-            min-height: 70vh;
+        .player-info { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
+        .player-info div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-controls { display: flex; align-items: center; gap: 15px; }
+        .ctrl-btn { font-size: 1.2rem; cursor: pointer; color: white; }
+        .play-btn { width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary); font-size: 1rem; }
+        
+        .player-actions { position: absolute; top: -12px; left: 15px; display: flex; gap: 8px; }
+        .mini-btn { width: 26px; height: 26px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; background: #eee; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .close-btn { background: #ff4757; color: white; }
+        
+        #kaaba-icon {
+            position: fixed; bottom: 100px; right: 20px;
+            width: 60px; height: 60px; background: var(--primary);
+            border-radius: 15px; display: none; z-index: 999;
+            justify-content: center; align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            cursor: pointer; border: 2px solid var(--gold);
+            animation: float 3s ease-in-out infinite;
         }
-
-        .quran-text {
-            font-family: 'Amiri', serif;
-            font-size: 26px;
-            line-height: 2.5;
-            text-align: justify;
-            text-align-last: center;
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        
+        .playlist-modal {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 70vh;
+            background: white; z-index: 1000; border-radius: 25px 25px 0 0;
+            box-shadow: 0 -10px 50px rgba(0,0,0,0.2); transform: translateY(100%);
+            transition: 0.3s; display: flex; flex-direction: column;
         }
+        .playlist-modal.open { transform: translateY(0); }
+        .playlist-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.2rem; }
+        .playlist-content { flex: 1; overflow-y: auto; padding: 10px; }
+        .playlist-item { padding: 15px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; cursor: pointer; }
+        .playlist-item:hover { background: #f9f9f9; }
 
-        .avatars-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-            justify-items: center;
-        }
-
-        .sheikh-avatar-container {
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .sheikh-avatar-container:hover { transform: translateY(-10px); }
-
-        .sheikh-img-circle {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 3rem;
-            color: var(--primary);
-            border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-
-        .sheikh-name {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--primary);
-        }
-
-        .sheikh-playlist {
-            display: none;
-        }
-
-        .playlist-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .back-btn {
-            background: #eee;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .surah-list-item {
-            background: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.2s;
-            border-right: 4px solid transparent;
-        }
-
-        .surah-list-item:hover, .surah-list-item.active {
-            background: #e0f2f1;
-            border-right-color: var(--primary);
-        }
-
-        .kids-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
-        }
-
-        .kid-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .kid-card:hover { transform: scale(1.05); border-color: #FFB74D; }
-
-        .kid-icon { font-size: 3rem; margin-bottom: 10px; color: #FF9800; }
-
-        .teacher-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #FFFBF0;
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .teacher-content {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .big-ayah-text {
-            font-family: 'Amiri', serif;
-            font-size: 45px;
-            line-height: 2;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
-
-        .close-teacher {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: #ff5252;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .tasbih-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
-            text-align: center;
-        }
-
-        .tasbih-circle {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: var(--white);
-            border: 8px solid var(--primary);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: 0.1s;
-            user-select: none;
-            margin: 30px 0;
-        }
-
-        .tasbih-circle:active {
-            transform: scale(0.95);
-            background: #f0f0f0;
-        }
-
-        .tasbih-count {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .tasbih-label {
-            font-size: 1rem;
-            color: var(--gold);
-            font-weight: 600;
-        }
-
-        .tasbih-actions {
-            display: flex;
-            gap: 20px;
-        }
-
+        .tasbih-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh; }
         .tasbih-btn {
-            padding: 10px 25px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
+            width: 240px; height: 240px; border-radius: 50%; background: white;
+            border: 8px solid var(--primary); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); user-select: none;
         }
-
-        .btn-reset { background: #eee; color: #333; }
-        .btn-reset:hover { background: #ddd; }
-
-        .tasbih-select {
-            padding: 12px;
-            border-radius: 12px;
-            border: 2px solid var(--primary);
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            color: var(--primary);
-        }
+        .tasbih-btn:active { transform: scale(0.95); }
 
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar {
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-                height: 75px;
-                flex-direction: row;
-                justify-content: space-around;
-                padding: 0;
-                border-top: 1px solid #ddd;
-            }
-            .nav-item { margin: 0; }
-            .main-content { height: 100vh; padding-bottom: 120px; }
-            .quran-text { font-size: 20px; }
-            .big-ayah-text { font-size: 30px; }
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; height: 70px; flex-direction: row; justify-content: space-around; position: fixed; bottom: 0; padding: 0; border-top: 1px solid #eee; }
+            .nav-btn { margin: 0; background: none !important; color: #999; }
+            .nav-btn.active { color: var(--primary); box-shadow: none; transform: none; }
+            .content-area { padding-bottom: 160px; }
+            #persistent-player { bottom: 80px; }
+            .reciters-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div id="splashScreen">
-        <i class="fas fa-kaaba splash-icon"></i>
-        <div class="splash-text">بسم الله الرحمن الرحيم</div>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="nav-btn active" onclick="switchTab('reciters')"><i class="fas fa-users"></i></div>
+            <div class="nav-btn" onclick="switchTab('kids')"><i class="fas fa-child"></i></div>
+            <div class="nav-btn" onclick="switchTab('quran')"><i class="fas fa-book-open"></i></div>
+            <div class="nav-btn" onclick="switchTab('tasbih')"><i class="fas fa-fingerprint"></i></div>
+        </nav>
+
+        <main class="content-area">
+            <section id="reciters" class="section active">
+                <h2 style="color:var(--primary); margin-bottom:20px;">القراء</h2>
+                <div class="reciters-grid" id="recitersList"></div>
+            </section>
+
+            <section id="kids" class="section">
+                <div style="background:linear-gradient(45deg, #FF9F43, #ff6b6b); color:white; padding:20px; border-radius:20px; margin-bottom:20px; text-align:center;">
+                    <i class="fas fa-star fa-2x"></i>
+                    <h3>المصحف المعلم</h3>
+                    <p>الشيخ الحصري (ترديد الأطفال)</p>
+                </div>
+                <div class="reciters-grid" id="kidsList"></div>
+            </section>
+
+            <section id="quran" class="section">
+                <div style="text-align:center; padding-top:50px;">
+                    <i class="fas fa-quran fa-4x" style="color:var(--primary); margin-bottom:20px;"></i>
+                    <h3>المصحف الشريف</h3>
+                    <select id="readerSelect" style="width:100%; padding:15px; margin:20px 0; border-radius:10px; border:1px solid #ddd;"></select>
+                    <button onclick="openReader()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">قراءة</button>
+                </div>
+            </section>
+
+            <section id="tasbih" class="section">
+                <div class="tasbih-container">
+                    <select id="tasbihType" style="margin-bottom:20px; padding:10px; border-radius:10px; border:1px solid var(--primary); color:var(--primary); font-weight:bold;">
+                        <option>سبحان الله</option>
+                        <option>الحمد لله</option>
+                        <option>الله أكبر</option>
+                        <option>لا إله إلا الله</option>
+                        <option>أستغفر الله</option>
+                    </select>
+                    <div class="tasbih-btn" onclick="doTasbih()">
+                        <span id="tasbihVal" style="font-size:3.5rem; font-weight:bold; color:var(--primary);">0</span>
+                    </div>
+                    <button onclick="resetTasbih()" style="margin-top:20px; background:#eee; border:none; padding:8px 25px; border-radius:20px;">تصفير</button>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <nav class="sidebar">
-        <div class="nav-item active" onclick="switchTab('quran')"><i class="fas fa-book-open"></i></div>
-        <div class="nav-item" onclick="switchTab('audio')"><i class="fas fa-headphones"></i></div>
-        <div class="nav-item" onclick="switchTab('kids')"><i class="fas fa-child"></i></div>
-        <div class="nav-item" onclick="switchTab('tasbih')"><i class="fas fa-fingerprint"></i></div>
-    </nav>
-
-    <main class="main-content">
-
-        <section id="quran" class="section active">
-            <div class="quran-header">
-                <select id="quranSelect" class="surah-select" onchange="loadQuranSurah(this.value)">
-                    <option value="" disabled selected>اختر السورة...</option>
-                </select>
-                <button class="zoom-btn" onclick="toggleZoom()"><i class="fas fa-expand"></i></button>
+    <div id="persistent-player">
+        <div class="player-actions">
+            <div class="mini-btn" onclick="minimizePlayer()">_</div>
+            <div class="mini-btn close-btn" onclick="closePlayer()">✕</div>
+        </div>
+        <div class="player-info">
+            <div style="display:flex; flex-direction:column;">
+                <span id="p-title" style="font-weight:bold; font-size:0.9rem;">اسم السورة</span>
+                <span id="p-reciter" style="font-size:0.75rem; opacity:0.8;">اسم القارئ</span>
             </div>
-            <div class="quran-page" id="quranDisplay">
-                <div style="text-align: center; margin-top: 50px; color: #888;">
-                    <i class="fas fa-book fa-3x"></i>
-                    <p style="margin-top: 15px;">اختر سورة للبدء</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="audio" class="section">
-            <div id="sheikhsList">
-                <h2 style="margin-bottom: 20px; color: var(--primary);">اختر القارئ</h2>
-                <div class="avatars-grid"></div>
-            </div>
-
-            <div id="surahPlaylist" class="sheikh-playlist">
-                <div class="playlist-header">
-                    <button class="back-btn" onclick="backToSheikhs()"><i class="fas fa-arrow-right"></i></button>
-                    <div>
-                        <h3 id="selectedSheikhName" style="margin: 0;">اسم الشيخ</h3>
-                        <p style="font-size: 0.8rem; color: #666;">التشغيل التلقائي مفعل <i class="fas fa-check-circle" style="color: green;"></i></p>
-                    </div>
-                </div>
-                <audio id="mainAudio" controls style="width: 100%; margin-bottom: 15px;"></audio>
-                <div id="playlistItems"></div>
-            </div>
-        </section>
-
-        <section id="kids" class="section">
-            <h2 style="text-align: center; color: #FF9800; margin-bottom: 20px;">
-                <i class="fas fa-star"></i> المصحف المعلم <i class="fas fa-star"></i>
-            </h2>
-            <div class="kids-grid" id="kidsGrid"></div>
-        </section>
-
-        <section id="tasbih" class="section">
-            <div class="tasbih-container">
-                <h2 style="color: var(--primary); margin-bottom: 20px;">السبحة الإلكترونية</h2>
-                <select id="tasbihType" class="tasbih-select">
-                    <option>سبحان الله</option>
-                    <option>الحمد لله</option>
-                    <option>لا إله إلا الله</option>
-                    <option>الله أكبر</option>
-                    <option>أستغفر الله</option>
-                    <option>اللهم صلِ على محمد</option>
-                </select>
-                
-                <div class="tasbih-circle" onclick="incrementTasbih()">
-                    <span class="tasbih-label">اضغط للتسبيح</span>
-                    <span id="tasbihCount" class="tasbih-count">0</span>
-                </div>
-
-                <div class="tasbih-actions">
-                    <button class="tasbih-btn btn-reset" onclick="resetTasbih()">إعادة ضبط</button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <div id="teacherModal" class="teacher-modal">
-        <button class="close-teacher" onclick="closeTeacherMode()">خروج</button>
-        <div class="teacher-content">
-            <h2 id="teacherSurahName" style="color: var(--primary); margin-bottom: 20px;"></h2>
-            <audio id="teacherAudio" controls style="width: 80%; margin: 0 auto; display: block;"></audio>
-            <div id="teacherText" class="big-ayah-text">جاري التحميل...</div>
+        </div>
+        <div class="player-controls">
+            <i class="fas fa-list ctrl-btn" onclick="toggleSurahMenu()"></i>
+            <i class="fas fa-backward ctrl-btn" onclick="prevTrack()"></i>
+            <div class="play-btn" onclick="togglePlay()"><i class="fas fa-play" id="playIcon"></i></div>
+            <i class="fas fa-forward ctrl-btn" onclick="nextTrack()"></i>
         </div>
     </div>
 
+    <div id="kaaba-icon" onclick="maximizePlayer()">
+        <i class="fas fa-kaaba" style="color:var(--gold); font-size:2rem;"></i>
+    </div>
+
+    <div id="playlistModal" class="playlist-modal">
+        <div class="playlist-header">
+            <span>اختر سورة</span>
+            <i class="fas fa-times" onclick="toggleSurahMenu()" style="cursor:pointer;"></i>
+        </div>
+        <div class="playlist-content" id="playlistContent"></div>
+    </div>
+
+    <div id="fullReader" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#fffbf0; z-index:2000; display:none; flex-direction:column; overflow-y:auto;">
+        <div style="position:fixed; top:20px; left:20px; z-index:2001;">
+            <button onclick="closeReader()" style="background:var(--primary); color:white; width:40px; height:40px; border-radius:50%; border:none; box-shadow:0 5px 15px rgba(0,0,0,0.2);"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="readerText" style="padding:60px 20px; font-family:'Amiri'; font-size:26px; line-height:2.4; text-align:center;"></div>
+    </div>
+
+    <audio id="audio"></audio>
+
     <script>
-        const API_TEXT = "https://api.alquran.cloud/v1";
-        const KIDS_AUDIO_SERVER = "https://server6.mp3quran.net/husr_m/"; 
-        
-        const reciters = [
-            { id: 'afs', name: 'مشاري العفاسي', server: 'https://server8.mp3quran.net/afs/', icon: 'fa-user-tie', color: '#1abc9c' },
-            { id: 'sds', name: 'عبدالرحمن السديس', server: 'https://server11.mp3quran.net/sds/', icon: 'fa-user-check', color: '#2ecc71' },
-            { id: 'shur', name: 'سعود الشريم', server: 'https://server7.mp3quran.net/shur/', icon: 'fa-user-astronaut', color: '#3498db' },
-            { id: 'basit', name: 'عبدالباسط (مجود)', server: 'https://server7.mp3quran.net/basit/', icon: 'fa-microphone-alt', color: '#9b59b6' },
-            { id: 'minsh', name: 'المنشاوي', server: 'https://server10.mp3quran.net/minsh/', icon: 'fa-mosque', color: '#f1c40f' },
-            { id: 'hudifi', name: 'الحذيفي', server: 'https://server6.mp3quran.net/hthfi/', icon: 'fa-book-reader', color: '#e67e22' },
-            { id: 'maher', name: 'ماهر المعيقلي', server: 'https://server12.mp3quran.net/maher/', icon: 'fa-water', color: '#e74c3c' },
-            { id: 'ajm', name: 'أحمد العجمي', server: 'https://server10.mp3quran.net/ajm/', icon: 'fa-microphone', color: '#34495e' }
+        const recitersData = [
+            { id: 'afs', name: 'مشاري العفاسي', server: 'https://server8.mp3quran.net/afs/' },
+            { id: 'maher', name: 'ماهر المعيقلي', server: 'https://server12.mp3quran.net/maher/' },
+            { id: 'sds', name: 'عبدالرحمن السديس', server: 'https://server11.mp3quran.net/sds/' },
+            { id: 'dosari', name: 'ياسر الدوسري', server: 'https://server11.mp3quran.net/yasser/' },
+            { id: 'ajm', name: 'أحمد العجمي', server: 'https://server10.mp3quran.net/ajm/' },
+            { id: 'shur', name: 'سعود الشريم', server: 'https://server7.mp3quran.net/shur/' },
+            { id: 'minsh', name: 'المنشاوي (مجود)', server: 'https://server10.mp3quran.net/minsh/' },
+            { id: 'hazza', name: 'هزاع البلوشي', server: 'https://server11.mp3quran.net/hazza/' },
+            { id: 'islam', name: 'اسلام صبحي', server: 'https://server14.mp3quran.net/islam/Rewayat-Hafs-A-n-Assem/' },
+            { id: 'kurdi', name: 'رعد الكردي', server: 'https://server6.mp3quran.net/kurdi/' }
         ];
 
+        const KIDS_SERVER = "https://server6.mp3quran.net/husr_m/";
         let allSurahs = [];
+        let favorites = JSON.parse(localStorage.getItem('favs')) || [];
         let currentReciter = null;
-        let currentSurahIndex = 0; 
-        let tasbihCounter = 0;
+        let currentSurahIndex = 0;
+        let isKidsMode = false;
+        const audio = document.getElementById('audio');
 
         window.onload = async () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splashScreen');
-                splash.style.opacity = '0';
-                setTimeout(() => splash.remove(), 1000);
-            }, 2500);
-
             await fetchSurahs();
             renderReciters();
-            
-            const mainAudio = document.getElementById('mainAudio');
-            mainAudio.addEventListener('ended', playNextSurah);
+            renderKids();
         };
 
         async function fetchSurahs() {
             try {
-                const res = await fetch(`${API_TEXT}/surah`);
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
                 const data = await res.json();
                 allSurahs = data.data;
-                
-                const quranSelect = document.getElementById('quranSelect');
-                const kidsGrid = document.getElementById('kidsGrid');
-
-                allSurahs.forEach(surah => {
-                    quranSelect.innerHTML += `<option value="${surah.number}">${surah.number}. ${surah.name}</option>`;
-
-                    if (surah.number >= 78 || surah.number === 1) {
-                        kidsGrid.innerHTML += `
-                            <div class="kid-card" onclick="openTeacherMode(${surah.number}, '${surah.name}')">
-                                <i class="fas fa-cloud-sun kid-icon"></i>
-                                <h3>${surah.name}</h3>
-                            </div>
-                        `;
-                    }
+                const select = document.getElementById('readerSelect');
+                allSurahs.forEach(s => {
+                    select.innerHTML += `<option value="${s.number}">${s.number}. ${s.name}</option>`;
                 });
-            } catch (e) { console.error("Error fetching surahs"); }
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tab).classList.add('active');
-            
-            const navs = document.querySelectorAll('.nav-item');
-            if(tab === 'quran') navs[0].classList.add('active');
-            if(tab === 'audio') navs[1].classList.add('active');
-            if(tab === 'kids') navs[2].classList.add('active');
-            if(tab === 'tasbih') navs[3].classList.add('active');
-        }
-
-        async function loadQuranSurah(number) {
-            const display = document.getElementById('quranDisplay');
-            display.innerHTML = '<div style="text-align:center;">جاري التحميل...</div>';
-            
-            try {
-                const res = await fetch(`${API_TEXT}/surah/${number}/quran-uthmani`);
-                const data = await res.json();
-                
-                let html = `<h2 style="text-align:center; color:#1E4D40; margin-bottom:20px;">${data.data.name}</h2>`;
-                if(number != 1 && number != 9) html += `<div style="text-align:center; font-family:'Amiri'; font-size:24px; margin-bottom:20px;">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
-                
-                html += '<div class="quran-text">';
-                data.data.ayahs.forEach(ayah => {
-                    let text = ayah.text;
-                    if(number != 1 && ayah.numberInSurah === 1) text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
-                    html += `${text} <span style="color:#C5A059; font-size:0.8em">(${toArabicNum(ayah.numberInSurah)})</span> `;
-                });
-                html += '</div>';
-                display.innerHTML = html;
-            } catch(e) { display.innerHTML = "حدث خطأ"; }
-        }
-
-        function toggleZoom() {
-            const page = document.getElementById('quranDisplay');
-            if(page.style.position === 'fixed') {
-                page.style.position = 'static';
-                page.style.zIndex = 'auto';
-                page.style.height = 'auto';
-                page.style.width = 'auto';
-                page.style.overflow = 'visible';
-                page.style.top = 'auto';
-                page.style.left = 'auto';
-            } else {
-                page.style.position = 'fixed';
-                page.style.zIndex = '1000';
-                page.style.top = '0';
-                page.style.left = '0';
-                page.style.width = '100%';
-                page.style.height = '100%';
-                page.style.overflow = 'auto';
-            }
+            } catch(e) {}
         }
 
         function renderReciters() {
-            const container = document.querySelector('.avatars-grid');
+            const container = document.getElementById('recitersList');
             container.innerHTML = '';
-            reciters.forEach(reciter => {
+            
+            recitersData.sort((a, b) => {
+                const aFav = favorites.includes(a.id);
+                const bFav = favorites.includes(b.id);
+                return bFav - aFav; 
+            });
+
+            recitersData.forEach(r => {
+                const isFav = favorites.includes(r.id);
                 container.innerHTML += `
-                    <div class="sheikh-avatar-container" onclick="selectReciter('${reciter.id}')">
-                        <div class="sheikh-img-circle" style="color: ${reciter.color}; border-color: ${reciter.color}">
-                            <i class="fas ${reciter.icon}"></i>
-                        </div>
-                        <div class="sheikh-name">${reciter.name}</div>
+                    <div class="reciter-card" onclick="playReciter('${r.id}')">
+                        <i class="fas fa-thumbtack pin-icon ${isFav ? 'active' : ''}" onclick="togglePin(event, '${r.id}')"></i>
+                        <div class="avatar-unified"><i class="fas fa-user-tie"></i></div>
+                        <div style="font-weight:bold; color:var(--primary); font-size:0.9rem;">${r.name}</div>
                     </div>
                 `;
             });
         }
 
-        function selectReciter(id) {
-            currentReciter = reciters.find(r => r.id === id);
-            document.getElementById('sheikhsList').style.display = 'none';
-            document.getElementById('surahPlaylist').style.display = 'block';
-            document.getElementById('selectedSheikhName').innerText = currentReciter.name;
-            
-            renderPlaylist();
+        function togglePin(e, id) {
+            e.stopPropagation();
+            if(favorites.includes(id)) favorites = favorites.filter(f => f !== id);
+            else favorites.push(id);
+            localStorage.setItem('favs', JSON.stringify(favorites));
+            renderReciters();
         }
 
-        function backToSheikhs() {
-            document.getElementById('sheikhsList').style.display = 'block';
-            document.getElementById('surahPlaylist').style.display = 'none';
-            document.getElementById('mainAudio').pause();
+        function renderKids() {
+            const container = document.getElementById('kidsList');
+            const check = setInterval(() => {
+                if(allSurahs.length > 0) {
+                    clearInterval(check);
+                    const kidsSurahs = [1, ...Array.from({length:37}, (_,i)=>i+78)];
+                    kidsSurahs.forEach(num => {
+                        const s = allSurahs[num-1];
+                        container.innerHTML += `
+                            <div class="reciter-card" onclick="playKidsTrack(${num})">
+                                <i class="fas fa-cloud-sun" style="font-size:2rem; color:#FF9F43; margin-bottom:10px;"></i>
+                                <div style="font-size:0.9rem;">${s.name}</div>
+                            </div>
+                        `;
+                    });
+                }
+            }, 100);
         }
 
-        function renderPlaylist() {
-            const list = document.getElementById('playlistItems');
-            list.innerHTML = '';
-            
-            allSurahs.forEach((surah, index) => {
-                list.innerHTML += `
-                    <div class="surah-list-item" id="surah-item-${index}" onclick="playSurahFromList(${index})">
-                        <span>${surah.number}. ${surah.name}</span>
-                        <i class="fas fa-play-circle" style="color: #ccc;"></i>
-                    </div>
-                `;
-            });
+        function playReciter(id) {
+            isKidsMode = false;
+            currentReciter = recitersData.find(r => r.id === id);
+            playAudio(0);
         }
 
-        function playSurahFromList(index) {
+        function playKidsTrack(num) {
+            isKidsMode = true;
+            currentReciter = { name: 'المصحف المعلم', server: KIDS_SERVER };
+            playAudio(num - 1);
+        }
+
+        function playAudio(index) {
             currentSurahIndex = index;
             const surah = allSurahs[index];
-            const audio = document.getElementById('mainAudio');
+            const numStr = String(surah.number).padStart(3, '0');
+            const url = `${currentReciter.server}${numStr}.mp3`;
             
-            const formattedNum = String(surah.number).padStart(3, '0');
-            audio.src = `${currentReciter.server}${formattedNum}.mp3`;
-            audio.play().catch(e => console.error("Audio failed"));
-
-            document.querySelectorAll('.surah-list-item').forEach(el => {
-                el.classList.remove('active');
-                el.querySelector('i').className = 'fas fa-play-circle';
-                el.querySelector('i').style.color = '#ccc';
-            });
-
-            const activeItem = document.getElementById(`surah-item-${index}`);
-            activeItem.classList.add('active');
-            activeItem.querySelector('i').className = 'fas fa-volume-up';
-            activeItem.querySelector('i').style.color = 'var(--primary)';
+            audio.src = url;
+            audio.play();
+            
+            document.getElementById('persistent-player').style.display = 'flex';
+            document.getElementById('kaaba-icon').style.display = 'none';
+            document.getElementById('p-title').innerText = surah.name;
+            document.getElementById('p-reciter').innerText = currentReciter.name;
+            document.getElementById('playIcon').className = 'fas fa-pause';
         }
 
-        function playNextSurah() {
-            if (currentSurahIndex < allSurahs.length - 1) {
-                playSurahFromList(currentSurahIndex + 1);
+        function togglePlay() {
+            if(audio.paused) { audio.play(); document.getElementById('playIcon').className = 'fas fa-pause'; }
+            else { audio.pause(); document.getElementById('playIcon').className = 'fas fa-play'; }
+        }
+
+        function nextTrack() { if(currentSurahIndex < 113) playAudio(currentSurahIndex + 1); }
+        function prevTrack() { if(currentSurahIndex > 0) playAudio(currentSurahIndex - 1); }
+
+        function minimizePlayer() {
+            document.getElementById('persistent-player').style.display = 'none';
+            document.getElementById('kaaba-icon').style.display = 'flex';
+        }
+
+        function maximizePlayer() {
+            document.getElementById('persistent-player').style.display = 'flex';
+            document.getElementById('kaaba-icon').style.display = 'none';
+        }
+
+        function closePlayer() {
+            audio.pause();
+            document.getElementById('persistent-player').style.display = 'none';
+            document.getElementById('kaaba-icon').style.display = 'none';
+        }
+
+        function toggleSurahMenu() {
+            const modal = document.getElementById('playlistModal');
+            const content = document.getElementById('playlistContent');
+            
+            if(modal.classList.contains('open')) {
+                modal.classList.remove('open');
+            } else {
+                content.innerHTML = '';
+                allSurahs.forEach((s, idx) => {
+                    content.innerHTML += `
+                        <div class="playlist-item" onclick="playAudio(${idx}); toggleSurahMenu()">
+                            <span>${s.number}. ${s.name}</span>
+                            <i class="fas fa-play" style="color:#ddd; font-size:0.8rem;"></i>
+                        </div>
+                    `;
+                });
+                modal.classList.add('open');
             }
         }
 
-        async function openTeacherMode(number, name) {
-            const modal = document.getElementById('teacherModal');
-            const textContainer = document.getElementById('teacherText');
-            const audio = document.getElementById('teacherAudio');
-            const title = document.getElementById('teacherSurahName');
-
-            modal.style.display = 'flex';
-            title.innerText = `هيا نحفظ: ${name}`;
-            textContainer.innerHTML = 'جاري التحميل...';
-
-            const formattedNum = String(number).padStart(3, '0');
-            audio.src = `${KIDS_AUDIO_SERVER}${formattedNum}.mp3`;
-            audio.load();
-            audio.play().catch(e => console.log("Play blocked"));
-
+        async function openReader() {
+            const num = document.getElementById('readerSelect').value;
+            if(!num) return;
+            const view = document.getElementById('fullReader');
+            const txt = document.getElementById('readerText');
+            view.style.display = 'flex';
+            txt.innerHTML = 'جاري التحميل...';
+            
             try {
-                const res = await fetch(`${API_TEXT}/surah/${number}/quran-uthmani`);
+                const res = await fetch(`https://api.alquran.cloud/v1/surah/${num}/quran-uthmani`);
                 const data = await res.json();
-                
-                let html = "";
-                if(number != 1 && number != 9) html += `<div style="color:#d35400; font-size:30px; margin-bottom:20px;">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
-                
-                data.data.ayahs.forEach(ayah => {
-                    let text = ayah.text;
-                    if(number != 1 && ayah.numberInSurah === 1) text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
-                    html += `<div style="margin-bottom:20px; padding:15px; background:white; border-radius:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1)">${text} <span style="color:#e67e22">(${toArabicNum(ayah.numberInSurah)})</span></div>`;
+                let html = `<h2 style="color:var(--primary); margin-bottom:30px;">${data.data.name}</h2>`;
+                if(num!=1 && num!=9) html += `<div style="margin-bottom:20px;">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
+                data.data.ayahs.forEach(a => {
+                    html += `${a.text} <span style="color:var(--gold); font-size:0.8em">(${a.numberInSurah.toLocaleString('ar-EG')})</span> `;
                 });
-                textContainer.innerHTML = html;
-
-            } catch(e) { textContainer.innerHTML = "حدث خطأ في تحميل النص"; }
+                txt.innerHTML = html;
+            } catch(e) {}
         }
+        function closeReader() { document.getElementById('fullReader').style.display = 'none'; }
 
-        function closeTeacherMode() {
-            document.getElementById('teacherModal').style.display = 'none';
-            document.getElementById('teacherAudio').pause();
+        let tasbihCount = 0;
+        function doTasbih() {
+            tasbihCount++;
+            document.getElementById('tasbihVal').innerText = tasbihCount;
+            if(navigator.vibrate) navigator.vibrate(30);
         }
-
-        function incrementTasbih() {
-            tasbihCounter++;
-            document.getElementById('tasbihCount').innerText = tasbihCounter;
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-        }
-
         function resetTasbih() {
-            tasbihCounter = 0;
-            document.getElementById('tasbihCount').innerText = '0';
+            tasbihCount = 0;
+            document.getElementById('tasbihVal').innerText = 0;
         }
 
-        function toArabicNum(n) {
-            return n.toString().replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+        function switchTab(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            const map = {'reciters':0, 'kids':1, 'quran':2, 'tasbih':3};
+            document.querySelectorAll('.nav-btn')[map[id]].classList.add('active');
         }
     </script>
 </body>
