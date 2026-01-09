@@ -9,12 +9,10 @@
     <meta name="author" content="TAQWA">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#1E4D40">
-    <link rel="canonical" href="https://your-website-url.com">
 
     <meta property="og:title" content="TAQWA – تقوى | تطبيقك الإسلامي اليومي">
     <meta property="og:description" content="استمع للقرآن الكريم، ردد الأذكار، واستخدم السبحة الإلكترونية في منصة واحدة سهلة الاستخدام.">
     <meta property="og:image" content="https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg">
-    <meta property="og:url" content="https://your-website-url.com">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="TAQWA">
 
@@ -27,28 +25,6 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "TAQWA - تقوى",
-      "url": "https://your-website-url.com",
-      "description": "تطبيق إسلامي شامل يوفر القرآن الكريم مسموعاً ومقروءاً، الأذكار، والتسبيح.",
-      "applicationCategory": "ReligiousApplication",
-      "operatingSystem": "Android, iOS, Windows, macOS",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Organization",
-        "name": "TAQWA"
-      },
-      "image": "https://i.postimg.cc/x1BkxF6r/f930dee177700783a3a6aaff72711874.jpg"
-    }
-    </script>
 
     <style>
         :root { --primary: #0f2e26; --gold: #C5A059; --white: #ffffff; --bg-body: #f8f9fa; }
@@ -106,6 +82,14 @@
         .brand-title { font-size: 1.8rem; font-weight: 900; color: var(--primary); }
         .brand-title span { color: var(--gold); }
         
+        .history-btn {
+            background: rgba(197, 160, 89, 0.1); color: var(--primary);
+            padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold;
+            border: 1px solid var(--gold); cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: 0.2s;
+        }
+        .history-btn:hover { background: var(--gold); color: white; }
+
         .search-bar {
             width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #eee;
             font-family: 'Tajawal'; font-size: 1rem; margin-bottom: 20px;
@@ -127,6 +111,11 @@
         }
         .pin-icon { position: absolute; top: 10px; left: 10px; color: #eee; font-size: 1.1rem; z-index: 2; transition: 0.2s; }
         .pin-icon.active { color: var(--gold); }
+        
+        .share-reciter-icon {
+            position: absolute; top: 10px; right: 10px; color: #eee; font-size: 1.1rem; z-index: 2; transition: 0.2s;
+        }
+        .share-reciter-icon:hover { color: var(--gold); }
 
         #persistent-player {
             position: fixed; bottom: 20px; left: 15px; right: 15px;
@@ -188,6 +177,107 @@
             display: none; align-items: center; gap: 10px; width: 100%; justify-content: center;
         }
 
+        .islamic-bar {
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 20px 0;
+            width: 100%;
+            border-radius: 2px;
+            position: relative;
+        }
+        .islamic-bar::after {
+            content: '۞';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-body);
+            padding: 0 10px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        .azkar-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .azkar-cat {
+            background: white; border-radius: 15px; padding: 20px;
+            text-align: center; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: 0.2s; border: 1px solid transparent;
+        }
+        .azkar-cat:hover { border-color: var(--gold); transform: translateY(-3px); }
+        .azkar-cat i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
+        .azkar-cat span { font-weight: bold; color: #555; }
+        
+        .azkar-detail-view {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-body); z-index: 2000;
+            flex-direction: column;
+        }
+        .azkar-header {
+            padding: 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .back-btn { font-size: 1.2rem; color: var(--primary); cursor: pointer; }
+        .azkar-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .dhikr-card {
+            background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;
+            border-right: 4px solid var(--gold); box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .dhikr-text { font-family: 'Amiri'; font-size: 1.2rem; line-height: 1.8; color: #333; margin-bottom: 15px; }
+        .dhikr-actions { display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #f5f5f5; padding-top: 10px; }
+        .action-btn { 
+            padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; 
+            border: 1px solid #eee; background: #fafafa; color: #666; display: flex; align-items: center; gap: 5px;
+        }
+
+        #historyModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 3000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .history-content {
+            background: white; width: 90%; max-width: 500px; height: 80%;
+            border-radius: 20px; padding: 20px; display: flex; flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .history-list { flex: 1; overflow-y: auto; margin-top: 15px; }
+        .history-item {
+            padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: flex-start; gap: 10px;
+        }
+        .history-time { font-size: 0.7rem; color: #999; min-width: 50px; }
+        .history-desc { font-size: 0.9rem; color: #333; }
+
+        .share-popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .share-popup-content {
+            background: white; width: 85%; max-width: 350px;
+            border-radius: 25px; padding: 30px; text-align: center;
+            position: relative; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        @keyframes popIn { from{opacity:0; transform:scale(0.8) translateY(20px)} to{opacity:1; transform:scale(1) translateY(0)} }
+        .share-close {
+            position: absolute; top: 15px; right: 15px;
+            font-size: 1.2rem; color: #aaa; cursor: pointer; padding: 5px;
+        }
+        .share-icon {
+            width: 80px; height: 80px; background: rgba(197, 160, 89, 0.1);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            margin: 0 auto 20px; color: var(--gold); font-size: 2.5rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+        .share-action-btn {
+            background: var(--primary); color: white; width: 100%; padding: 15px;
+            border: none; border-radius: 15px; font-weight: bold; font-size: 1rem;
+            cursor: pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(15, 46, 38, 0.3);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+
         @media (max-width: 768px) {
             .app-container { flex-direction: column; }
             .sidebar { width: 100%; height: 75px; flex-direction: row; justify-content: space-around; position: fixed; bottom: 0; padding: 0; border-top: 1px solid #eee; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
@@ -212,30 +302,70 @@
     <div class="app-container">
         <nav class="sidebar">
             <div class="nav-btn active" onclick="switchTab('reciters')"><i class="fas fa-users"></i></div>
-            <div class="nav-btn" onclick="switchTab('kids')"><i class="fas fa-child"></i></div>
+            <div class="nav-btn" onclick="switchTab('adhkar')"><i class="fas fa-hands-praying"></i></div>
             <div class="nav-btn" onclick="switchTab('quran')"><i class="fas fa-book-open"></i></div>
+            <div class="nav-btn" onclick="switchTab('kids')"><i class="fas fa-child"></i></div>
             <div class="nav-btn" onclick="switchTab('tasbih')"><i class="fas fa-fingerprint"></i></div>
-            <div class="nav-btn" onclick="shareApp()"><i class="fas fa-share-alt"></i></div>
         </nav>
 
         <main class="content-area">
+            <header class="brand-header">
+                <div class="brand-title">TAQWA <span>تقوى</span></div>
+                <button class="history-btn" onclick="showHistory()">
+                    <i class="fas fa-clock-rotate-left"></i> سجل اليوم
+                </button>
+            </header>
+
             <button id="install-app-btn" onclick="installPWA()">
                 <i class="fas fa-download"></i> تثبيت تطبيق تقوى
             </button>
-
-            <header class="brand-header">
-                <div class="brand-title">TAQWA <span>تقوى</span></div>
-            </header>
 
             <section id="reciters" class="section active">
                 <input type="text" class="search-bar" placeholder="ابحث عن قارئ..." onkeyup="filterReciters(this.value)">
                 <div class="reciters-grid" id="recitersList"></div>
             </section>
 
+            <section id="adhkar" class="section">
+                <div style="text-align:center; padding: 10px 0;">
+                    <i class="fas fa-book-quran" style="font-size: 3rem; color: var(--primary);"></i>
+                    <h3 style="margin-top:10px; color:var(--primary);">حصن المسلم</h3>
+                </div>
+                
+                <div class="islamic-bar"></div>
+
+                <div class="azkar-grid">
+                    <div class="azkar-cat" onclick="openAzkar('morning')">
+                        <i class="fas fa-sun" style="color:#f39c12"></i>
+                        <span>أذكار الصباح</span>
+                    </div>
+                    <div class="azkar-cat" onclick="openAzkar('evening')">
+                        <i class="fas fa-moon" style="color:#34495e"></i>
+                        <span>أذكار المساء</span>
+                    </div>
+                    <div class="azkar-cat" onclick="openAzkar('sleep')">
+                        <i class="fas fa-bed" style="color:#9b59b6"></i>
+                        <span>أذكار النوم</span>
+                    </div>
+                    <div class="azkar-cat" onclick="openAzkar('prayer')">
+                        <i class="fas fa-pray" style="color:#2ecc71"></i>
+                        <span>أذكار بعد الصلاة</span>
+                    </div>
+                    <div class="azkar-cat" onclick="openAzkar('mosque')">
+                        <i class="fas fa-mosque" style="color:#e67e22"></i>
+                        <span>أذكار المسجد</span>
+                    </div>
+                    <div class="azkar-cat" onclick="openAzkar('wudu')">
+                        <i class="fas fa-hand-holding-water" style="color:#3498db"></i>
+                        <span>أذكار الوضوء</span>
+                    </div>
+                </div>
+            </section>
+
             <section id="kids" class="section">
                 <div style="background:linear-gradient(45deg, #FF9F43, #ff6b6b); color:white; padding:25px; border-radius:20px; margin-bottom:20px; text-align:center;">
                     <i class="fas fa-star fa-2x" style="margin-bottom:10px;"></i>
                     <h3>المصحف المعلم</h3>
+                    <p style="font-size:0.9rem; opacity:0.9;">الشيخ محمد صديق المنشاوي</p>
                 </div>
                 <div class="reciters-grid" id="kidsList"></div>
             </section>
@@ -255,8 +385,10 @@
                     <button class="tasbih-cat" onclick="setTasbih(this, 'الحمد لله')">الحمد لله</button>
                     <button class="tasbih-cat" onclick="setTasbih(this, 'الله أكبر')">الله أكبر</button>
                     <button class="tasbih-cat" onclick="setTasbih(this, 'أستغفر الله')">أستغفر الله</button>
+                    <button class="tasbih-cat" onclick="setTasbih(this, 'لا إله إلا الله')">لا إله إلا الله</button>
                     <button class="tasbih-cat" onclick="setTasbih(this, 'لا حول ولا قوة إلا بالله')">لا حول ولا قوة إلا بالله</button>
                     <button class="tasbih-cat" onclick="setTasbih(this, 'اللهم صل وسلم على نبينا محمد')">الصلاة على النبي</button>
+                    <button class="tasbih-cat" onclick="setTasbih(this, 'سبحان الله وبحمده سبحان الله العظيم')">سبحان الله وبحمده</button>
                 </div>
                 
                 <div class="tasbih-container">
@@ -316,6 +448,42 @@
         <div id="readerText" style="padding:80px 20px; font-family:'Amiri'; font-size:26px; line-height:2.6; text-align:justify; max-width:800px; margin:0 auto;"></div>
     </div>
 
+    <div id="azkarDetailView" class="azkar-detail-view">
+        <div class="azkar-header">
+            <div class="back-btn" onclick="closeAzkarDetail()"><i class="fas fa-arrow-right"></i></div>
+            <div style="font-weight:bold; font-size:1.2rem;" id="azkarTitle">العنوان</div>
+        </div>
+        <div class="azkar-content" id="azkarContainer"></div>
+    </div>
+
+    <div id="historyModal" onclick="if(event.target === this) closeHistory()">
+        <div class="history-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3><i class="fas fa-calendar-day"></i> نشاط اليوم</h3>
+                <button onclick="closeHistory()" style="background:none; border:none; font-size:1.2rem;">✕</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <div style="text-align:center; color:#999; margin-top:20px;">لا يوجد نشاط مسجل اليوم</div>
+            </div>
+            <button onclick="clearHistory()" style="margin-top:10px; color:#ff4757; background:none; border:none; cursor:pointer;">مسح السجل</button>
+        </div>
+    </div>
+
+    <div id="sharePopup" class="share-popup-overlay">
+        <div class="share-popup-content">
+            <div class="share-close" onclick="closeSharePopup()">✕</div>
+            <div class="share-icon"><i class="fas fa-gift"></i></div>
+            <h3 style="color:var(--primary); margin-bottom:10px;">شارك الخير</h3>
+            <p style="color:#555; line-height:1.6; font-size:0.95rem;">
+                "الدال على الخير كفاعله"
+                <br>ساهم في نشر هذا العمل ليكون صدقة جارية لك ولمن تحب.
+            </p>
+            <button class="share-action-btn" onclick="shareAppGlobal()">
+                <i class="fas fa-share-alt"></i> نشر التطبيق
+            </button>
+        </div>
+    </div>
+
     <audio id="audio"></audio>
 
     <script>
@@ -329,16 +497,110 @@
             { id: 'minsh', name: 'المنشاوي (مجود)', server: 'https://server10.mp3quran.net/minsh/' },
             { id: 'hazza', name: 'هزاع البلوشي', server: 'https://server11.mp3quran.net/hazza/' },
             { id: 'islam', name: 'اسلام صبحي', server: 'https://server14.mp3quran.net/islam/Rewayat-Hafs-A-n-Assem/' },
-            { id: 'kurdi', name: 'رعد الكردي', server: 'https://server6.mp3quran.net/kurdi/' }
+            { id: 'kurdi', name: 'رعد الكردي', server: 'https://server6.mp3quran.net/kurdi/' },
+            { id: 'basit', name: 'عبدالباسط عبدالصمد', server: 'https://server7.mp3quran.net/basit/' },
+            { id: 'basit_mjwd', name: 'عبدالباسط (مجود)', server: 'https://server7.mp3quran.net/basit/Al-Mushaf-Al-Mojawwad/' },
+            { id: 'shatri', name: 'أبو بكر الشاطري', server: 'https://server11.mp3quran.net/shatri/' },
+            { id: 'ahmad_nu', name: 'أحمد النفيس', server: 'https://server16.mp3quran.net/nufais/' },
+            { id: 'khaled', name: 'خالد الجليل', server: 'https://server10.mp3quran.net/jleel/' },
+            { id: 'fares', name: 'فارس عباد', server: 'https://server8.mp3quran.net/frs_a/' },
+            { id: 'nasser', name: 'ناصر القطامي', server: 'https://server6.mp3quran.net/qtm/' },
+            { id: 'yasser_q', name: 'ياسر القرشي', server: 'https://server9.mp3quran.net/qurashi/' },
+            { id: 'mansour', name: 'منصور السالمي', server: 'https://server14.mp3quran.net/mansor/' },
+            { id: 'wadie', name: 'وديع اليمني', server: 'https://server6.mp3quran.net/wdee/' },
+            { id: 'banna', name: 'محمود علي البنا', server: 'https://server8.mp3quran.net/bna/' },
+            { id: 'juhany', name: 'عبدالله الجهني', server: 'https://server13.mp3quran.net/jhn/' },
+            { id: 'budair', name: 'صلاح البدير', server: 'https://server6.mp3quran.net/s_bud/' },
+            { id: 'hudhaify', name: 'علي الحذيفي', server: 'https://server9.mp3quran.net/hthfi/' },
+            { id: 'matroud', name: 'عبدالله مطرود', server: 'https://server8.mp3quran.net/mtrod/' },
+            { id: 'bsfar', name: 'عبدالله بصفر', server: 'https://server6.mp3quran.net/bsfr/' },
+            { id: 'kanakeri', name: 'عبدالرشيد صوفي', server: 'https://server16.mp3quran.net/soufi/Rewayat-Khalaf-A-n-Hamzah/' },
+            { id: 'refat', name: 'محمد رفعت', server: 'https://server14.mp3quran.net/refat/' },
+            { id: 'tablawi', name: 'محمد الطبلاوي', server: 'https://server12.mp3quran.net/tblawi/' },
+            { id: 'qazabri', name: 'عمر القزابري', server: 'https://server9.mp3quran.net/omar_warsh/' },
+            { id: 'dokali', name: 'الدكالي محمد العالم', server: 'https://server7.mp3quran.net/dokali/' },
+            { id: 'zamil', name: 'الزامل', server: 'https://server9.mp3quran.net/zamil/' },
+            { id: 'ayyoub', name: 'محمد أيوب', server: 'https://server8.mp3quran.net/ayyoub/' },
+            { id: 'muh_j', name: 'محمد جبريل', server: 'https://server8.mp3quran.net/jbrl/' },
+            { id: 'saad', name: 'سعد الغامدي', server: 'https://server7.mp3quran.net/s_gmd/' },
+            { id: 'salah_buk', name: 'صلاح بو خاطر', server: 'https://server8.mp3quran.net/bu_khtr/' },
+            { id: 'hani', name: 'هاني الرفاعي', server: 'https://server8.mp3quran.net/hani/' },
+            { id: 'thubaiti', name: 'عبدالبارئ الثبيتي', server: 'https://server6.mp3quran.net/thubti/' },
+            { id: 'muh_l', name: 'محمد اللحيدان', server: 'https://server8.mp3quran.net/lhdan/' },
+            { id: 'akdar', name: 'إبراهيم الأخضر', server: 'https://server6.mp3quran.net/akhdr/' },
+            { id: 'ali_jaber', name: 'علي جابر', server: 'https://server11.mp3quran.net/a_jbr/' },
+            { id: 'sowailim', name: 'عبدالعزيز السويلم', server: 'https://server14.mp3quran.net/sowailim/' },
+            { id: 'khalifa', name: 'خليفة الطنيجي', server: 'https://server12.mp3quran.net/tunaiji/' },
+            { id: 'alzain', name: 'الزين محمد أحمد', server: 'https://server9.mp3quran.net/alzain/' },
+            { id: 'qatami', name: 'ناصر القطامي', server: 'https://server6.mp3quran.net/qtm/' },
+            { id: 'bilal', name: 'بلال دربالي', server: 'https://server14.mp3quran.net/bilal/' },
+            { id: 'lafi', name: 'لافي العوني', server: 'https://server14.mp3quran.net/lafi/' },
+            { id: 'harthi', name: 'محمد الحارثي', server: 'https://server14.mp3quran.net/m_harthi/' },
+            { id: 'kandari', name: 'عبدالله الكندري', server: 'https://server10.mp3quran.net/kandari/' },
+            { id: 'abdelhady', name: 'عبدالرحمن العوسي', server: 'https://server6.mp3quran.net/aloosi/' },
+            { id: 'wael', name: 'وائل الدسوقي', server: 'https://server14.mp3quran.net/wael/' },
+            { id: 'mustafa', name: 'مصطفى إسماعيل', server: 'https://server8.mp3quran.net/mustafa/' },
+            { id: 'husary', name: 'الحصري (مرتل)', server: 'https://server13.mp3quran.net/husr/' },
+            { id: 'husary_mjwd', name: 'الحصري (مجود)', server: 'https://server13.mp3quran.net/husr/Al-Mushaf-Al-Mojawwad/' },
+            { id: 'awad', name: 'عوض الجهني', server: 'https://server11.mp3quran.net/awad/' },
+            { id: 'moh_abd', name: 'محمد عبدالكريم', server: 'https://server12.mp3quran.net/m_krm/' },
+            { id: 'moh_rashad', name: 'محمد رشاد الشريف', server: 'https://server10.mp3quran.net/rashad/' },
+            { id: 'jaber', name: 'علي جابر', server: 'https://server11.mp3quran.net/a_jbr/' },
+            { id: 'yousef', name: 'يوسف بن نوح', server: 'https://server8.mp3quran.net/noah/' },
+            { id: 'khayat', name: 'عبدالله خياط', server: 'https://server12.mp3quran.net/khayat/' }
         ];
-        const KIDS_SERVER = "https://server6.mp3quran.net/husr_m/";
+
+        const azkarData = {
+            morning: [
+                { txt: "أَصْـبَحْنا وَأَصْـبَحَ المُـلْكُ لله وَالحَمدُ لله ، لا إلهَ إلاّ اللّهُ وَحدَهُ لا شَريكَ لهُ، لهُ المُـلْكُ ولهُ الحَمْـد، وهُوَ على كلّ شَيءٍ قدير", count: 1 },
+                { txt: "اللّهُـمَّ بِكَ أَصْـبَحْنا وَبِكَ أَمْسَـينا ، وَبِكَ نَحْـيا وَبِكَ نَمُـوتُ وَإِلَـيْكَ النُّـشُور", count: 1 },
+                { txt: "سُبْحـانَ اللهِ وَبِحَمْـدِهِ عَدَدَ خَلْـقِه ، وَرِضـا نَفْسِـه ، وَزِنَـةَ عَـرْشِـه ، وَمِـدادَ كَلِمـاتِـه", count: 3 },
+                { txt: "اللّهُـمَّ عافِـني في بَدَنـي ، اللّهُـمَّ عافِـني في سَمْـعي ، اللّهُـمَّ عافِـني في بَصَـري ، لا إلهَ إلاّ أَنْـتَ", count: 3 },
+                { txt: "أَعـوذُ بِاللهِ مِنَ الشَّـيْطانِ الرَّجيـم: اللّهُ لاَ إِلَـهَ إِلاَّ هُوَ الْحَيُّ الْقَيُّومُ لاَ تَأْخُذُهُ سِنَةٌ وَلاَ نَوْمٌ...", count: 1 }
+            ],
+            evening: [
+                { txt: "أَمْسَيْـنا وَأَمْسـى المـلكُ لله وَالحَمدُ لله ، لا إلهَ إلاّ اللّهُ وَحدَهُ لا شَريكَ لهُ", count: 1 },
+                { txt: "اللّهُـمَّ بِكَ أَمْسَـينا وَبِكَ أَصْـبَحْنا، وَبِكَ نَحْـيا وَبِكَ نَمُـوتُ وَإِلَـيْكَ الْمَصِير", count: 1 },
+                { txt: "أَعـوذُ بِكَلِمـاتِ اللّهِ التّـامّـاتِ مِنْ شَـرِّ ما خَلَـق", count: 3 }
+            ],
+            sleep: [
+                { txt: "بِاسْمِكَ رَبِّـي وَضَعْـتُ جَنْـبي ، وَبِكَ أَرْفَعُـه", count: 1 },
+                { txt: "اللّهُـمَّ إِنَّـكَ خَلَـقْتَ نَفْسـي وَأَنْـتَ تَوَفّـاهـا لَكَ ممَـاتُـها وَمَحْـياها", count: 1 },
+                { txt: "بِاسْمِكَ اللّهُـمَّ أَمـوتُ وَأَحْـيا", count: 1 }
+            ],
+            prayer: [
+                { txt: "أَسْتَغْفِرُ اللهَ، أَسْتَغْفِرُ اللهَ، أَسْتَغْفِرُ اللهَ", count: 1 },
+                { txt: "اللّهُـمَّ أَنْـتَ السَّلامُ ، وَمِـنْكَ السَّلام ، تَبارَكْتَ يا ذا الجَـلالِ وَالإِكْـرام", count: 1 }
+            ],
+            mosque: [
+                { txt: "بِسْمِ اللهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ", count: 1 },
+                { txt: "بِسْمِ الله، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ الله، اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ", count: 1 }
+            ],
+            wudu: [
+                { txt: "بِسْمِ اللهِ", count: 1 },
+                { txt: "أَشْهَدُ أَنْ لَا إِلَهَ إِلاَّ اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ", count: 1 }
+            ]
+        };
+
+        const KIDS_SERVER = "https://server10.mp3quran.net/minsh_awi/";
         let allSurahs = [];
         let favorites = JSON.parse(localStorage.getItem('favs')) || [];
+        let activityLog = []; 
         let currentReciter = null;
         let currentSurahIndex = 0;
         const audio = document.getElementById('audio');
 
+        let interactionCount = 0;
+        let hasShownPopup = false;
+
         window.onload = async () => {
+            const storedHistory = localStorage.getItem('activityLog');
+            if (storedHistory) {
+                const parsed = JSON.parse(storedHistory);
+                const today = new Date().toLocaleDateString();
+                activityLog = parsed.filter(item => item.date === today);
+            }
+
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => document.getElementById('splash').remove(), 1000);
@@ -348,42 +610,45 @@
             renderReciters();
             renderKids();
 
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            const cat = params.get('cat');
+            if(tab) switchTab(tab);
+            if(cat) openAzkar(cat);
+
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js');
             }
         };
 
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('install-app-btn').style.display = 'flex';
-        });
-
-        async function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    document.getElementById('install-app-btn').style.display = 'none';
-                }
-                deferredPrompt = null;
+        function trackInteraction() {
+            interactionCount++;
+            if(interactionCount >= 2 && !hasShownPopup) {
+                setTimeout(showSharePopup, 500);
+                hasShownPopup = true;
             }
         }
 
-        async function shareApp() {
-            const shareData = {
-                title: 'TAQWA – تقوى',
-                text: 'استمع للقرآن الكريم واستخدم السبحة الإلكترونية في تطبيق تقوى.',
-                url: window.location.href
-            };
+        function showSharePopup() {
+            document.getElementById('sharePopup').style.display = 'flex';
+        }
 
+        function closeSharePopup() {
+            document.getElementById('sharePopup').style.display = 'none';
+        }
+
+        function shareAppGlobal() {
             if (navigator.share) {
-                try { await navigator.share(shareData); } catch (err) {}
+                navigator.share({
+                    title: 'TAQWA – تقوى',
+                    text: 'استمع للقرآن الكريم والأذكار والمصحف المعلم في تطبيق تقوى.',
+                    url: window.location.href
+                });
             } else {
-                const msg = encodeURIComponent(shareData.text + " " + shareData.url);
-                window.open(`https://wa.me/?text=${msg}`, '_blank');
+                navigator.clipboard.writeText(window.location.href);
+                alert('تم نسخ رابط التطبيق!');
             }
+            closeSharePopup();
         }
 
         async function fetchSurahs() {
@@ -413,6 +678,7 @@
                 container.innerHTML += `
                     <div class="reciter-card" onclick="playReciter('${r.id}')">
                         <i class="fas fa-thumbtack pin-icon ${isFav ? 'active' : ''}" onclick="togglePin(event, '${r.id}')"></i>
+                        <i class="fas fa-share-nodes share-reciter-icon" onclick="shareReciter(event, '${r.name}')"></i>
                         <div class="avatar-unified"><i class="fas fa-user-tie"></i></div>
                         <div style="font-weight:bold; color:var(--primary); font-size:0.95rem;">${r.name}</div>
                     </div>
@@ -430,26 +696,81 @@
             renderReciters();
         }
 
+        function shareReciter(e, name) {
+            e.stopPropagation();
+            if (navigator.share) {
+                navigator.share({
+                    title: `استمع للشيخ ${name}`,
+                    text: `استمع للقرآن الكريم بصوت الشيخ ${name} عبر تطبيق تقوى`,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('تم نسخ الرابط!');
+            }
+        }
+
         function renderKids() {
             const container = document.getElementById('kidsList');
             const check = setInterval(() => {
                 if(allSurahs.length > 0) {
                     clearInterval(check);
-                    const kidsSurahs = [1, ...Array.from({length:37}, (_,i)=>i+78)];
+                    const kidsSurahs = [1, ...Array.from({length:37}, (_,i)=>i+78)]; 
                     kidsSurahs.forEach(num => {
                         const s = allSurahs[num-1];
-                        container.innerHTML += `
-                            <div class="reciter-card" onclick="playAudio('${KIDS_SERVER}', 'المصحف المعلم', ${num-1})">
-                                <i class="fas fa-cloud-sun" style="font-size:2rem; color:#FF9F43; margin-bottom:10px;"></i>
-                                <div style="font-size:0.9rem;">${s.name}</div>
-                            </div>
-                        `;
+                        if(s) {
+                            container.innerHTML += `
+                                <div class="reciter-card" onclick="playAudio('${KIDS_SERVER}', 'المصحف المعلم', ${num-1})">
+                                    <i class="fas fa-cloud-sun" style="font-size:2rem; color:#FF9F43; margin-bottom:10px;"></i>
+                                    <div style="font-size:0.9rem;">${s.name}</div>
+                                </div>
+                            `;
+                        }
                     });
                 }
-            }, 100);
+            }, 500);
+        }
+
+        function addToHistory(desc) {
+            const now = new Date();
+            const time = now.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+            const date = now.toLocaleDateString();
+            
+            const item = { date, time, desc };
+            activityLog.unshift(item); 
+            
+            localStorage.setItem('activityLog', JSON.stringify(activityLog));
+        }
+
+        function showHistory() {
+            trackInteraction();
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            
+            if(activityLog.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">لا يوجد نشاط مسجل اليوم</div>';
+            } else {
+                activityLog.forEach(item => {
+                    list.innerHTML += `
+                        <div class="history-item">
+                            <span class="history-time">${item.time}</span>
+                            <span class="history-desc">${item.desc}</span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('historyModal').style.display = 'flex';
+        }
+
+        function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
+        function clearHistory() { 
+            activityLog = []; 
+            localStorage.removeItem('activityLog');
+            showHistory();
         }
 
         function playReciter(id) {
+            trackInteraction();
             currentReciter = recitersData.find(r => r.id === id);
             playAudio(currentReciter.server, currentReciter.name, 0);
         }
@@ -465,6 +786,8 @@
             audio.src = `${server}${numStr}.mp3`;
             audio.play();
             
+            addToHistory(`الاستماع إلى سورة ${surah.name} بصوت ${reciterName}`);
+
             document.getElementById('persistent-player').style.display = 'flex';
             document.getElementById('kaaba-icon').style.display = 'none';
             document.getElementById('p-title').innerText = surah.name;
@@ -527,10 +850,69 @@
             document.getElementById('kaaba-icon').style.display = 'none';
         }
 
+        function openAzkar(category) {
+            trackInteraction();
+            const data = azkarData[category];
+            if(!data) return;
+
+            let catName = "";
+            if(category==='morning') catName="أذكار الصباح";
+            if(category==='evening') catName="أذكار المساء";
+            if(category==='sleep') catName="أذكار النوم";
+            addToHistory(`قراءة ${catName || category}`);
+
+            const container = document.getElementById('azkarContainer');
+            document.getElementById('azkarTitle').innerText = catName;
+            container.innerHTML = '';
+
+            data.forEach((d, i) => {
+                container.innerHTML += `
+                    <div class="dhikr-card">
+                        <div class="dhikr-text">${d.txt}</div>
+                        <div class="dhikr-actions">
+                            <span style="font-size:0.8rem; color:var(--gold); margin-left:auto;">التكرار: ${d.count}</span>
+                            <div class="action-btn" onclick="copyText('${d.txt.substring(0,20)}...', this)"><i class="fas fa-copy"></i> نسخ</div>
+                            <div class="action-btn" onclick="shareDhikr('${category}')"><i class="fas fa-share-alt"></i> مشاركة</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('azkarDetailView').style.display = 'flex';
+        }
+
+        function closeAzkarDetail() {
+            document.getElementById('azkarDetailView').style.display = 'none';
+        }
+
+        function copyText(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fas fa-check"></i> تم';
+                setTimeout(() => btnElement.innerHTML = original, 1500);
+            });
+        }
+
+        function shareDhikr(cat) {
+            const url = `${window.location.origin}${window.location.pathname}?tab=adhkar&cat=${cat}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'TAQWA - أذكار',
+                    text: 'اقرأ الأذكار عبر تطبيق تقوى',
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert('تم نسخ رابط المشاركة!');
+            }
+        }
+
+
         let tasbihCount = 0;
         let tasbihGoal = 33;
 
         function setTasbih(el, dhikr) {
+            trackInteraction();
             document.querySelectorAll('.tasbih-cat').forEach(c => {
                 c.classList.remove('active');
                 c.style.background = 'white'; 
@@ -541,6 +923,7 @@
             el.style.color = 'white';
             document.getElementById('currentDhikr').innerText = dhikr;
             resetTasbih();
+            addToHistory(`بدء التسبيح: ${dhikr}`);
         }
 
         function setTarget(val) {
@@ -567,8 +950,13 @@
         }
 
         async function openReader() {
+            trackInteraction();
             const num = document.getElementById('readerSelect').value;
             if(!num) return;
+            
+            const surahName = allSurahs.find(s=>s.number==num)?.name || "";
+            addToHistory(`قراءة سورة ${surahName}`);
+
             document.getElementById('fullReader').style.display = 'flex';
             const txt = document.getElementById('readerText');
             txt.innerHTML = '<div style="text-align:center; color:var(--primary)">جاري التحميل...</div>';
@@ -586,16 +974,38 @@
         }
         function closeReader() { document.getElementById('fullReader').style.display = 'none'; }
 
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-app-btn').style.display = 'flex';
+        });
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('install-app-btn').style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        }
+
         function switchTab(id) {
+            trackInteraction();
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            const target = document.getElementById(id);
+            if(target) target.classList.add('active');
+            
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
             const btns = document.querySelectorAll('.nav-btn');
             if(id === 'reciters') btns[0].classList.add('active');
-            if(id === 'kids') btns[1].classList.add('active');
+            if(id === 'adhkar') btns[1].classList.add('active');
             if(id === 'quran') btns[2].classList.add('active');
-            if(id === 'tasbih') btns[3].classList.add('active');
+            if(id === 'kids') btns[3].classList.add('active');
+            if(id === 'tasbih') btns[4].classList.add('active');
         }
     </script>
 </body>
